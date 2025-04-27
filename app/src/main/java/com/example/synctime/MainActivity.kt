@@ -12,36 +12,31 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.synctime.ui.theme.SyncTimeTheme
+import android.view.ViewGroup
+import androidx.cardview.widget.CardView
+import androidx.appcompat.app.AppCompatActivity
+import android.view.View
+import android.widget.Button
+import android.widget.EditText
+import android.widget.Toast
+import com.example.synctime.databinding.ActivityMainBinding
 
 class MainActivity : ComponentActivity() {
+    private lateinit var binding: ActivityMainBinding
+    lateinit var username: EditText
+    lateinit var password: EditText
+    lateinit var loginButton: Button
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            SyncTimeTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+            binding = ActivityMainBinding.inflate(layoutInflater)
+            setContentView(binding.root)
+            binding.loginButton.setOnClickListener(View.OnClickListener {
+                if (binding.username.text.toString() == "SyncTimeUser" && binding.password.text.toString() == "eta") {
+                    Toast.makeText(this, "Login Successful!", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this, "Login Failed!", Toast.LENGTH_SHORT).show()
                 }
-            }
+            })
         }
     }
-}
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    SyncTimeTheme {
-        Greeting("Android")
-    }
-}
