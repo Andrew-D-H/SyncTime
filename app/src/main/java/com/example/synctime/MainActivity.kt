@@ -1,42 +1,77 @@
 package com.example.synctime
 
+import android.content.Intent
 import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.synctime.ui.theme.SyncTimeTheme
-import android.view.ViewGroup
-import androidx.cardview.widget.CardView
-import androidx.appcompat.app.AppCompatActivity
-import android.view.View
-import android.widget.Button
-import android.widget.EditText
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import com.example.synctime.databinding.ActivityMainBinding
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.GoogleAuthProvider
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
-    lateinit var username: EditText
-    lateinit var password: EditText
-    lateinit var loginButton: Button
+    private lateinit var auth: FirebaseAuth
+    private lateinit var googleSignInClient: GoogleSignInClient
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-            binding = ActivityMainBinding.inflate(layoutInflater)
-            setContentView(binding.root)
-            binding.loginButton.setOnClickListener(View.OnClickListener {
-                if (binding.username.text.toString() == "SyncTimeUser" && binding.password.text.toString() == "eta") {
-                    Toast.makeText(this, "Login Successful!", Toast.LENGTH_SHORT).show()
-                } else {
-                    Toast.makeText(this, "Login Failed!", Toast.LENGTH_SHORT).show()
-                }
-            })
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        //Initialize Firebase Auth
+        auth = FirebaseAuth.getInstance()
+
+        //configure google sign in
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(getString(R.string.default_web_client_id)) // Get this from your Firebase project settings
+            .requestEmail()
+            .build()
+        googleSignInClient = GoogleSignIn.getClient(this, gso)
+
+        // Google Sign-In button click
+        binding.googleSignInButton.setOnClickListener {
+            signInWithGoogle()
         }
     }
+
+    private val googleSignInLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        val data = result.data
+        val task = GoogleSignIn.getSignedInAccountFromIntent(data)
+        try {
+            val account = task.getResult(ApiException::class.java)!!
+            firebaseAuthWithGoogle(account.idToken!!)
+        } catch (e: Exception) {
+            Toast.makeText(this, "Google sign in failed: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun signInWithGoogle() {
+        val signInIntent = googleSignInClient.signInIntent
+        googleSignInLauncher.launch(signInIntent)
+    }
+
+
+    private fun firebaseAuthWithGoogle(idToken: String) {
+        val credential = GoogleAuthProvider.getCredential(idToken, null)
+        auth.signInWithCredential(credential)
+            .addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
+                    Toast.makeText(this, "Google Login Successful!", Toast.LENGTH_SHORT).show()
+                    // You can go to your next activity here
+                } else {
+                    Toast.makeText(this, "Google Login Failed!", Toast.LENGTH_SHORT).show()
+                }
+            }
+    }
+
+}
 
