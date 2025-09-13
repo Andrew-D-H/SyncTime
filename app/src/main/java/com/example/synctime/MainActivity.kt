@@ -11,8 +11,11 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
+import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.database
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -39,6 +42,11 @@ class MainActivity : AppCompatActivity() {
         binding.googleSignInButton.setOnClickListener {
             signInWithGoogle()
         }
+
+        //Database testing
+        val database = Firebase.database
+        val myRef = database.getReference("message")
+        myRef.setValue("Hello, World!")
     }
 
     private val googleSignInLauncher = registerForActivityResult(
@@ -66,7 +74,25 @@ class MainActivity : AppCompatActivity() {
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     Toast.makeText(this, "Google Login Successful!", Toast.LENGTH_SHORT).show()
+
+                    // Save credentials to database
+                    val userId = auth.currentUser!!.uid
+                    val databaseReference = FirebaseDatabase.getInstance().getReference("users")
+                    val userProfile = mapOf(
+                        "name" to auth.currentUser!!.displayName,
+                        "email" to auth.currentUser!!.email
+                        // Add any other relevant user data here
+                    )
+                    // save profile data
+                    databaseReference.child(userId).setValue(userProfile)
+                        .addOnSuccessListener {
+                            Toast.makeText(this, "User profile saved to DB!", Toast.LENGTH_SHORT).show()
+                        }
+                        .addOnFailureListener { e -> // Added 'e' for the exception
+                            Toast.makeText(this, "Failed to save user profile: ${e.message}", Toast.LENGTH_SHORT).show()
+                        }
                     // You can go to your next activity here
+
                 } else {
                     Toast.makeText(this, "Google Login Failed!", Toast.LENGTH_SHORT).show()
                 }
