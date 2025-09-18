@@ -5,9 +5,8 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import com.example.synctime.databinding.ActivityMainBinding
+import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
@@ -15,15 +14,15 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var binding: ActivityMainBinding
     private lateinit var auth: FirebaseAuth
     private lateinit var googleSignInClient: GoogleSignInClient
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        setContentView(R.layout.main_menu)
+
+        val toolbar: MaterialToolbar = findViewById(R.id.toolbar)
+        setSupportActionBar(toolbar)
 
         //Initialize Firebase Auth
         auth = FirebaseAuth.getInstance()
@@ -36,9 +35,9 @@ class MainActivity : AppCompatActivity() {
         googleSignInClient = GoogleSignIn.getClient(this, gso)
 
         // Google Sign-In button click
-        binding.googleSignInButton.setOnClickListener {
-            signInWithGoogle()
-        }
+        // If your googleSignInButton is inside main_menu.xml, uncomment this:
+        // val googleSignInButton: Button = findViewById(R.id.googleSignInButton)
+        // googleSignInButton.setOnClickListener { signInWithGoogle() }
     }
 
     private val googleSignInLauncher = registerForActivityResult(
@@ -59,7 +58,6 @@ class MainActivity : AppCompatActivity() {
         googleSignInLauncher.launch(signInIntent)
     }
 
-
     private fun firebaseAuthWithGoogle(idToken: String) {
         val credential = GoogleAuthProvider.getCredential(idToken, null)
         auth.signInWithCredential(credential)
@@ -72,6 +70,4 @@ class MainActivity : AppCompatActivity() {
                 }
             }
     }
-
 }
-
