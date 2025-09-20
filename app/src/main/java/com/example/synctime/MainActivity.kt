@@ -80,7 +80,8 @@ class MainActivity : AppCompatActivity() {
                     val databaseReference = FirebaseDatabase.getInstance().getReference("users")
                     val userProfile = mapOf(
                         "name" to auth.currentUser!!.displayName,
-                        "email" to auth.currentUser!!.email
+                        "email" to auth.currentUser!!.email,
+                        "profileURL" to (auth.currentUser!!.photoUrl?.toString() ?: "https://share.google/images/iLS3QJscaybUFYIRD")
                         // Add any other relevant user data here
                     )
                     // save profile data
