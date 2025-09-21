@@ -13,7 +13,7 @@
         android:id="@+id/imageView3"
         android:layout_width="266dp"
         android:layout_height="241dp"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="70dp"
         android:contentDescription="App_Logo"
         app:srcCompat="@drawable/circle_logo_black" />
 
