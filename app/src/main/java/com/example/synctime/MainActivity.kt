@@ -50,7 +50,7 @@ class MainActivity : AppCompatActivity() {
             val account = task.getResult(ApiException::class.java)!!
             firebaseAuthWithGoogle(account.idToken!!)
         } catch (e: Exception) {
-            Toast.makeText(this, "Google sign in failed: ${e.message}", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Google sign in failed: ${e.message}", Toast.LENGTH_LONG).show()
         }
     }
 
@@ -65,10 +65,10 @@ class MainActivity : AppCompatActivity() {
         auth.signInWithCredential(credential)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
-                    Toast.makeText(this, "Google Login Successful!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Google Login Successful!", Toast.LENGTH_LONG).show()
                     // You can go to your next activity here
                 } else {
-                    Toast.makeText(this, "Google Login Failed!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Google Login Failed!", Toast.LENGTH_LONG).show()
                 }
             }
     }
