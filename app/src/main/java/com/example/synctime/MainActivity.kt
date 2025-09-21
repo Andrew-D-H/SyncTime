@@ -27,9 +27,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main_menu)
 
-        val toolbar: MaterialToolbar = findViewById(R.id.toolbar)
-        setSupportActionBar(toolbar)
-
         //Initialize Firebase Auth
         auth = FirebaseAuth.getInstance()
 
@@ -77,10 +74,12 @@ class MainActivity : AppCompatActivity() {
             "123 Main Street" to "Orlando, FL 32801",
             "456 Oak Avenue" to "Jacksonville, FL 32202",
             "789 Pine Lane" to "Miami, FL 33101",
+            "101 Maple Drive" to "Tampa, FL 33602",
             "101 Maple Drive" to "Tampa, FL 33602"
         )
 
         recyclerView.adapter = PlacesAdapter(fakePlaces)
+        Toast.makeText(this, "Adapter set with ${fakePlaces.size} places", Toast.LENGTH_SHORT).show()
     }
 
     // 🔹 Inline adapter class
