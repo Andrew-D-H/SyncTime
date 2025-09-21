@@ -23,179 +23,100 @@
             app:navigationIcon="@drawable/ic_menu_24" />
     </com.google.android.material.appbar.AppBarLayout>
 
-
-
-    <!-- ─────────── Scrollable Content ─────────── -->
-    <androidx.core.widget.NestedScrollView
+    <!-- ─────────── Main Content ─────────── -->
+    <LinearLayout
+        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
 
-        <LinearLayout
-            android:orientation="vertical"
+        <!-- Search Bar -->
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_margin="12dp"
+            app:startIconDrawable="@drawable/ic_search_24">
 
-            <!-- Search Bar -->
-            <com.google.android.material.textfield.TextInputLayout
+            <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="12dp"
-                app:startIconDrawable="@drawable/ic_search_24">
+                android:hint="Search..." />
+        </com.google.android.material.textfield.TextInputLayout>
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Search..." />
-            </com.google.android.material.textfield.TextInputLayout>
+        <!-- Google Map placeholder -->
+        <FrameLayout
+            android:id="@+id/map_container"
+            android:layout_width="match_parent"
+            android:layout_height="250dp"
+            tools:background="@drawable/tools_map_placeholder">
 
-            <!-- Google Map placeholder -->
-            <FrameLayout
-                android:id="@+id/map_container"
+            <com.google.android.gms.maps.MapView
+                android:id="@+id/mapView"
                 android:layout_width="match_parent"
-                android:layout_height="250dp"
-                tools:background="@drawable/tools_map_placeholder" >
+                android:layout_height="match_parent" />
+        </FrameLayout>
 
-                <com.google.android.gms.maps.MapView
-                    android:id="@+id/mapView"
-                    android:layout_width="409dp"
-                    android:layout_height="358dp" />
-            </FrameLayout>
+        <!-- Floating Buttons overlay -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp">
 
-            <!-- Floating Buttons overlay -->
-
-            <!-- Share Location Row -->
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="16dp"
-                android:layout_marginBottom="16dp">
-
-                <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-                    android:id="@+id/btn_chat"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Chat"
-                    android:textColor="@android:color/white"
-                    app:backgroundTint="@color/purple_500"
-                    app:icon="@drawable/ic_chat_24"
-                    app:iconTint="@android:color/white"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent" />
-
-                <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-                    android:id="@+id/btn_new_trip"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="New Trip"
-                    android:textColor="@android:color/white"
-                    app:backgroundTint="@color/purple_500"
-                    app:icon="@drawable/ic_add_24"
-                    app:iconTint="@android:color/white"
-                    app:layout_constraintBottom_toTopOf="@id/btn_chat"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    android:layout_marginBottom="12dp"/>
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="2dp">
-
-                <LinearLayout
-                    android:orientation="horizontal"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="12dp"
-                    android:gravity="center_vertical">
-
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:src="@drawable/ic_my_location_24" />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:paddingStart="12dp"
-                        android:text="Share Your Current Location"
-                        android:textStyle="bold"
-                        android:textColor="@color/purple_500" />
-
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:src="@drawable/ic_chevron_right_24" />
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Places Header -->
-            <TextView
+            <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+                android:id="@+id/btn_chat"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:text="Places Near You"
-                android:textStyle="bold"
-                android:textColor="@android:color/black" />
+                android:text="Chat"
+                android:textColor="@android:color/white"
+                app:backgroundTint="@color/purple_500"
+                app:icon="@drawable/ic_chat_24"
+                app:iconTint="@android:color/white"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
 
-            <!-- Place Item Card -->
-            <LinearLayout
-                android:layout_width="match_parent"
+            <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+                android:id="@+id/btn_new_trip"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:padding="12dp">
+                android:text="New Trip"
+                android:textColor="@android:color/white"
+                app:backgroundTint="@color/purple_500"
+                app:icon="@drawable/ic_add_24"
+                app:iconTint="@android:color/white"
+                app:layout_constraintBottom_toTopOf="@id/btn_chat"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginBottom="12dp"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_place_24" />
+        <!-- Places Header -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:text="Places Near You"
+            android:textStyle="bold"
+            android:textColor="@android:color/black" />
 
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:paddingStart="12dp">
+        <!-- RecyclerView for multiple places -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/placesRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            tools:listitem="@layout/item_place" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="7747 State Street"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Green Cove Springs, FL 32043" />
-                </LinearLayout>
-            </LinearLayout>
-
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="2dp">
-
-            </com.google.android.material.card.MaterialCardView>
-
-        </LinearLayout>
-    </androidx.core.widget.NestedScrollView>
+    </LinearLayout>
 
     <!-- Bottom Navigation -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/bottom_nav"
+        android:id="@+id/bottom_navigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
+        android:background="@android:color/darker_gray"
         app:menu="@menu/menu_bottom_nav"
-        app:itemIconTint="@color/nav_item_color"
-        app:itemTextColor="@color/nav_item_color"
-        app:backgroundTint="@color/purple_500" />
+        app:labelVisibilityMode="labeled"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
