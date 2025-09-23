@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">SyncTime</string>
-    <string name="default_web_client_id">300006006875-6r42jmdvkm9gc2raeia2k7ar1p6h9et7.apps.googleusercontent.com</string>
+    <string name="search_hint">Search...</string>
+    <string name="chat">Chat</string>
+    <string name="new_trip">New Trip</string>
+    <string name="places_near_you">Places Near You</string>
 </resources>
