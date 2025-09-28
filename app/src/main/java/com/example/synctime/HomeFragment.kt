@@ -19,7 +19,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
         val fakePlaces = listOf(
-            "7747 State Street" to "Green Cove Springs, FL 32043",
+            "7747 State Street" to "Green Cove Springs, FL 320A43",
             "123 Main Street" to "Orlando, FL 32801",
             "456 Oak Avenue" to "Jacksonville, FL 32202",
             "789 Pine Lane" to "Miami, FL 33101",
