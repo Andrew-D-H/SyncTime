@@ -10,6 +10,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import android.widget.ImageView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 
 class SettingsFragment : Fragment(R.layout.settings_screen) {
 
@@ -35,16 +36,20 @@ class SettingsFragment : Fragment(R.layout.settings_screen) {
 
                     tvUserName.text = name ?: "No Name Found"
 
+                    ivProfilePic.imageTintList = null // clear tint before loading from Glide
+
                     // Load profile picture using Glide
                     Glide.with(requireContext())
                         .load(photoUrl)
                         .placeholder(R.drawable.baseline_account_circle_24) // existing drawable
                         .error(R.drawable.baseline_account_circle_24)
+                        .diskCacheStrategy(DiskCacheStrategy.DATA)
                         .circleCrop()
                         .into(ivProfilePic)
 
                     // DEBUGGING
                     Log.d("SettingsFragment", "photoUrl = $photoUrl")
+
                 }
 
                 override fun onCancelled(error: DatabaseError) {
@@ -53,7 +58,7 @@ class SettingsFragment : Fragment(R.layout.settings_screen) {
                 }
             })
         } else {
-            tvUserName.text = "User not logged in"
+            // pass
         }
     }
 }

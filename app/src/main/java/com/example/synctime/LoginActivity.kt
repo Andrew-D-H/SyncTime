@@ -21,6 +21,8 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var googleSignInClient: GoogleSignInClient
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        Log.d("LoginActivity", "Client ID: ${getString(R.string.default_web_client_id)}")
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
