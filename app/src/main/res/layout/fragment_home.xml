@@ -97,7 +97,7 @@
             android:layout_marginTop="8dp"
             android:text="@string/places_near_you"
             android:textStyle="bold"
-            android:textColor="@android:color/black" />
+            android:textColor="?android:textColor" />
 
         <!-- RecyclerView for multiple places -->
         <androidx.recyclerview.widget.RecyclerView
