@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F8F6FF"
+    android:padding="16dp">
+
+    <!-- Top Banner -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="#C5A3FF"
+        android:paddingHorizontal="16dp"
+        android:gravity="center_vertical"
+        android:elevation="4dp"
+        android:layout_marginBottom="12dp"
+        android:clipToOutline="true"
+        android:backgroundTintMode="src_atop"
+        android:backgroundTint="#C5A3FF"
+        android:shape="rectangle"
+        android:clipChildren="true"
+        android:layout_marginTop="0dp">
+
+        <TextView
+            android:id="@+id/tvFriendsBanner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Friends List"
+            android:textColor="@android:color/white"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:layout_centerVertical="true" />
+
+        <ImageButton
+            android:id="@+id/btnAddFriend"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:src="@drawable/baseline_person_add_24"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            app:tint="@android:color/white" />
+    </RelativeLayout>
+
+    <!-- Search Bar -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:orientation="horizontal"
+        android:background="@drawable/bg_search_bar"
+        android:paddingHorizontal="12dp"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="16dp">
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/baseline_search_24"
+            app:tint="#999999" />
+
+        <EditText
+            android:id="@+id/etSearchFriends"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="Search friends..."
+            android:background="@android:color/transparent"
+            android:paddingStart="8dp"
+            android:textColor="#333333"
+            android:textColorHint="#AAAAAA" />
+    </LinearLayout>
+
+    <!-- Friends RecyclerView -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvFriendsList"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:overScrollMode="never" />
+
+    <!-- Pending Requests -->
+    <TextView
+        android:id="@+id/tvPendingTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Pending Requests"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:layout_marginTop="8dp"
+        android:textColor="#6E43FF" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvPendingRequests"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:nestedScrollingEnabled="false" />
+
+</LinearLayout>
