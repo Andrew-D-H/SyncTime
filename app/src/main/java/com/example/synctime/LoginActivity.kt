@@ -13,6 +13,7 @@ import com.google.android.gms.common.SignInButton
 import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.database.FirebaseDatabase
 
 class LoginActivity : AppCompatActivity() {
 
@@ -20,6 +21,8 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var googleSignInClient: GoogleSignInClient
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        Log.d("LoginActivity", "Client ID: ${getString(R.string.default_web_client_id)}")
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
@@ -66,6 +69,25 @@ class LoginActivity : AppCompatActivity() {
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     Toast.makeText(this, "Google Login Successful!", Toast.LENGTH_SHORT).show()
+
+                    // Save credentials to database
+                    val userId = auth.currentUser!!.uid
+                    val databaseReference = FirebaseDatabase.getInstance().getReference("users")
+                    val userProfile = mapOf(
+                        "name" to auth.currentUser!!.displayName,
+                        "email" to auth.currentUser!!.email,
+                        "profileURL" to (auth.currentUser!!.photoUrl?.toString() ?: "https://share.google/images/iLS3QJscaybUFYIRD")
+                        // Add any other relevant user data here
+                    )
+                    // save profile data
+                    databaseReference.child(userId).setValue(userProfile)
+                        .addOnSuccessListener {
+                            Toast.makeText(this, "User profile saved to DB!", Toast.LENGTH_SHORT).show()
+                        }
+                        .addOnFailureListener { e -> // Added 'e' for the exception
+                            Toast.makeText(this, "Failed to save user profile: ${e.message}", Toast.LENGTH_SHORT).show()
+                        }
+
                     // ✅ After login, go to MainActivity
                     startActivity(Intent(this, MainActivity::class.java))
                     finish()
