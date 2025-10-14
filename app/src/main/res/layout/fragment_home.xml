@@ -43,18 +43,13 @@
                 android:hint="@string/search_hint" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Google Map placeholder -->
-        <FrameLayout
-            android:id="@+id/map_container"
+        <!-- Google Maps -->
+        <com.google.android.gms.maps.MapView
+            android:id="@+id/mapView"
             android:layout_width="match_parent"
-            android:layout_height="250dp">
-
-            <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:src="@drawable/tools_map_placeholder"
-                android:scaleType="centerCrop" />
-        </FrameLayout>
+            android:layout_height="0dp"
+            android:layout_weight="0.7"
+            android:layout_marginBottom="16dp"/>
 
         <!-- Floating Buttons overlay -->
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -104,7 +99,7 @@
             android:id="@+id/placesRecyclerView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1"
+            android:layout_weight=".3"
             tools:listitem="@layout/item_place" />
 
     </LinearLayout>
