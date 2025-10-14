@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
-class MainActivity : AppCompatActivity() {
+class   MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main_menu)
@@ -55,6 +55,12 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 else -> false
+            val fragment = when (item.itemId) {
+                R.id.nav_home -> HomeFragment()
+//                R.id.nav_notifications -> NotificationsFragment()
+                R.id.nav_settings -> SettingsFragment()
+                R.id.nav_notifications -> FriendsFragment()  // TEMP FOR TESTING PURPOSES
+                else -> null
             }
         }
     }
