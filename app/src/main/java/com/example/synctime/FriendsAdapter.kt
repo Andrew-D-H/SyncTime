@@ -11,6 +11,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import android.graphics.Color
+import android.widget.LinearLayout
 
 class FriendsAdapter :
     RecyclerView.Adapter<FriendsAdapter.FriendViewHolder>(), Filterable {
@@ -43,6 +44,10 @@ class FriendsAdapter :
         val status = itemView.findViewById<TextView>(R.id.tvFriendStatus)
         val profile = itemView.findViewById<ImageView>(R.id.ivFriendProfile)
         val remove = itemView.findViewById<ImageButton>(R.id.btnRemoveFriend)
+
+        val pendingButtonsContainer = itemView.findViewById<LinearLayout>(R.id.pendingButtonsContainer)
+        val accept = itemView.findViewById<ImageButton>(R.id.btnAcceptRequest)
+        val decline = itemView.findViewById<ImageButton>(R.id.btnDeclineRequest)
     }
 
 
@@ -54,6 +59,9 @@ class FriendsAdapter :
 
     // button clicks
     var onRemoveClick: ((Friend) -> Unit)? = null
+    var onAcceptClick: ((Friend) -> Unit)? = null
+    var onDeclineClick: ((Friend) -> Unit)? = null
+
     override fun onBindViewHolder(holder: FriendViewHolder, position: Int) {
         val friend = filteredList[position]
         holder.name.text = friend.name
@@ -69,9 +77,19 @@ class FriendsAdapter :
             .circleCrop()
             .into(holder.profile)
 
-        holder.remove.setOnClickListener {
-            onRemoveClick?.invoke(friend)
+        // Show buttons depending on pending state
+        if (friend.isPending) {
+            holder.remove.visibility = View.GONE
+            holder.pendingButtonsContainer.visibility = View.VISIBLE
+        } else {
+            holder.remove.visibility = View.VISIBLE
+            holder.pendingButtonsContainer.visibility = View.GONE
         }
+
+        // Click listeners
+        holder.remove.setOnClickListener { onRemoveClick?.invoke(friend) }
+        holder.accept.setOnClickListener { onAcceptClick?.invoke(friend) }
+        holder.decline.setOnClickListener { onDeclineClick?.invoke(friend) }
     }
 
     override fun getItemCount() = filteredList.size

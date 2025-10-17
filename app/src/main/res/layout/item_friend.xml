@@ -10,23 +10,22 @@
     android:elevation="2dp"
     android:clipToOutline="true">
 
+    <!-- Profile Image -->
     <ImageView
         android:id="@+id/ivFriendProfile"
         android:layout_width="48dp"
         android:layout_height="48dp"
-        android:layout_marginTop="0dp"
-        android:layout_marginBottom="0dp"
         android:src="@drawable/baseline_account_circle_24"
         android:contentDescription="Friend profile"
-        android:backgroundTint="#E8E8E8"
-        android:scaleType="centerCrop" />
+        android:scaleType="centerCrop"
+        android:layout_marginEnd="12dp" />
 
+    <!-- Name + Status -->
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:orientation="vertical"
-        android:paddingStart="12dp">
+        android:orientation="vertical">
 
         <TextView
             android:id="@+id/tvFriendName"
@@ -46,11 +45,39 @@
             android:textColor="#6E43FF" />
     </LinearLayout>
 
+    <!-- Remove Friend Button -->
     <ImageButton
         android:id="@+id/btnRemoveFriend"
         android:layout_width="32dp"
         android:layout_height="32dp"
         android:src="@drawable/baseline_person_remove_24"
         android:background="?attr/selectableItemBackgroundBorderless"
-        app:tint="#FF4C4C" />
+        app:tint="#FF4C4C"
+        android:visibility="visible" />
+
+    <!-- Pending Buttons (hidden by default) -->
+    <LinearLayout
+        android:id="@+id/pendingButtonsContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <ImageButton
+            android:id="@+id/btnAcceptRequest"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@drawable/baseline_check_24"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            app:tint="#6E43FF"
+            android:layout_marginEnd="8dp" />
+
+        <ImageButton
+            android:id="@+id/btnDeclineRequest"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@drawable/baseline_close_24"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            app:tint="#999999" />
+    </LinearLayout>
 </LinearLayout>
