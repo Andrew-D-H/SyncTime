@@ -44,12 +44,14 @@ class FriendsAdapter :
         val status = itemView.findViewById<TextView>(R.id.tvFriendStatus)
         val profile = itemView.findViewById<ImageView>(R.id.ivFriendProfile)
         val remove = itemView.findViewById<ImageButton>(R.id.btnRemoveFriend)
+        val chat = itemView.findViewById<ImageButton>(R.id.btnChatFriend)
 
         val pendingButtonsContainer = itemView.findViewById<LinearLayout>(R.id.pendingButtonsContainer)
         val accept = itemView.findViewById<ImageButton>(R.id.btnAcceptRequest)
         val decline = itemView.findViewById<ImageButton>(R.id.btnDeclineRequest)
     }
 
+    var onChatClick: ((Friend) -> Unit)? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FriendViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -80,9 +82,11 @@ class FriendsAdapter :
         // Show buttons depending on pending state
         if (friend.isPending) {
             holder.remove.visibility = View.GONE
+            holder.chat.visibility = View.GONE
             holder.pendingButtonsContainer.visibility = View.VISIBLE
         } else {
             holder.remove.visibility = View.VISIBLE
+            holder.chat.visibility = View.VISIBLE
             holder.pendingButtonsContainer.visibility = View.GONE
         }
 
@@ -90,6 +94,7 @@ class FriendsAdapter :
         holder.remove.setOnClickListener { onRemoveClick?.invoke(friend) }
         holder.accept.setOnClickListener { onAcceptClick?.invoke(friend) }
         holder.decline.setOnClickListener { onDeclineClick?.invoke(friend) }
+        holder.chat.setOnClickListener { onChatClick?.invoke(friend) }
     }
 
     override fun getItemCount() = filteredList.size

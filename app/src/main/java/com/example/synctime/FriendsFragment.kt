@@ -6,6 +6,7 @@ import android.text.TextWatcher
 import android.view.View
 import android.widget.EditText
 import android.widget.Toast
+import android.content.Intent
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -14,6 +15,7 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
+
 
 
 class FriendsFragment : Fragment(R.layout.manage_friends) {
@@ -107,6 +109,15 @@ class FriendsFragment : Fragment(R.layout.manage_friends) {
 
             // Remove from pending list
             pendingAdapter.removeFriend(friend)
+        }
+
+        friendsAdapter.onChatClick = { friend ->
+            val chatFragment = ChatFragment.newInstance(friend.uid, friend.name)
+
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, chatFragment)
+                .addToBackStack(null)
+                .commit()
         }
 
 
