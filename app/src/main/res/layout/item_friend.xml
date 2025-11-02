@@ -45,33 +45,41 @@
             android:textColor="#6E43FF" />
     </LinearLayout>
 
-    <!-- Chat Button -->
-    <ImageButton
-        android:id="@+id/btnChatFriend"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        android:src="@drawable/baseline_chat_24"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        app:tint="#6E43FF"
-        android:layout_marginEnd="8dp"/>
+    <!-- Action Buttons -->
+    <LinearLayout
+        android:id="@+id/actionButtonsContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
 
-    <!-- Remove Friend Button -->
-    <ImageButton
-        android:id="@+id/btnRemoveFriend"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        android:src="@drawable/baseline_person_remove_24"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        app:tint="#FF4C4C"
-        android:visibility="visible" />
+        <!-- Chat Button -->
+        <ImageButton
+            android:id="@+id/btnChatFriend"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@drawable/baseline_chat_24"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            app:tint="#6E43FF"
+            android:layout_marginEnd="8dp"/>
 
-    <!-- Pending Buttons (hidden by default) -->
+        <!-- Remove Friend Button -->
+        <ImageButton
+            android:id="@+id/btnRemoveFriend"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@drawable/baseline_person_remove_24"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            app:tint="#FF4C4C"
+            android:visibility="visible" />
+    </LinearLayout>
+
+    <!-- Pending Buttons -->
     <LinearLayout
         android:id="@+id/pendingButtonsContainer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:visibility="gone">
+        android:visibility="visible">
 
         <ImageButton
             android:id="@+id/btnAcceptRequest"
