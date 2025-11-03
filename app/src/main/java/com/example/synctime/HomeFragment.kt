@@ -80,11 +80,17 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                     it.animate().scaleX(1f).scaleY(1f).duration = 100
                 }
 
-            AlertDialog.Builder(requireContext())
-                .setTitle("Chat")
-                .setMessage("Chat feature coming soon!")
-                .setPositiveButton("OK", null)
-                .show()
+            // 🔹 Navigate to ChatListFragment
+            parentFragmentManager.beginTransaction()
+                .setCustomAnimations(
+                    android.R.anim.fade_in,
+                    android.R.anim.fade_out,
+                    android.R.anim.fade_in,
+                    android.R.anim.fade_out
+                )
+                .replace(R.id.fragment_container, ChatListFragment())
+                .addToBackStack(null)
+                .commit()
         }
     }
 
