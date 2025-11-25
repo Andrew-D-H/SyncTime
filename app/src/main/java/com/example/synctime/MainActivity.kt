@@ -9,6 +9,8 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.os.LocaleListCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.MaterialToolbar
@@ -24,7 +26,6 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main_menu)
-
         val bottomNav: BottomNavigationView = findViewById(R.id.bottom_navigation)
 
         // Load Home first
@@ -45,6 +46,25 @@ class MainActivity : AppCompatActivity() {
                     .commit()
                 true
             } ?: false
+        }
+    }
+    fun setlanguage(view: View) {
+        // set app locale given the user's selected locale
+        var lang = AppCompatDelegate.getApplicationLocales()
+        if (lang.toLanguageTags().toString() == "en") {
+
+            AppCompatDelegate.setApplicationLocales(
+                LocaleListCompat.forLanguageTags(
+                    "es"//ISO for Spanish
+                )
+            )
+        }
+        else if (lang.toLanguageTags().toString() == "es") {
+            AppCompatDelegate.setApplicationLocales(
+                LocaleListCompat.forLanguageTags(
+                    "en"//ISO for English
+                )
+            )
         }
     }
 }

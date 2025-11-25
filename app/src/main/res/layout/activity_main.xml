@@ -25,7 +25,7 @@
         android:layout_marginTop="32dp"
         android:fontFamily="sans-serif-medium"
         android:gravity="center"
-        android:text="Plan Smarter,\nArrive Together."
+        android:text="@string/tagline"
         android:textColor="@android:color/white"
         android:textSize="40sp" />
 

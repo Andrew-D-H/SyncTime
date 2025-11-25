@@ -35,7 +35,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="GROUPS"
+                android:text="@string/groups"
                 android:textSize="14sp"
                 android:textColor="@android:color/darker_gray"
                 android:textStyle="bold"
@@ -61,7 +61,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Trip Updates"
+                        android:text="@string/trip_updates"
                         android:textSize="16sp"
                         android:textColor="@android:color/white" />
 
@@ -85,7 +85,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Arrivals"
+                        android:text="@string/arrivals"
                         android:textSize="16sp"
                         android:textColor="@android:color/white" />
 
@@ -109,7 +109,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Departures"
+                        android:text="@string/departures"
                         android:textSize="16sp"
                         android:textColor="@android:color/white" />
 
@@ -126,7 +126,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="MESSAGES"
+                android:text="@string/messages"
                 android:textSize="14sp"
                 android:textColor="@android:color/darker_gray"
                 android:textStyle="bold"
@@ -151,7 +151,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Friend Requests"
+                        android:text="@string/friend_requests"
                         android:textSize="16sp"
                         android:textColor="@android:color/white" />
 
@@ -175,7 +175,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Weather Updates"
+                        android:text="@string/weather_updates"
                         android:textSize="16sp"
                         android:textColor="@android:color/white" />
 
@@ -199,7 +199,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Traffic Updates"
+                        android:text="@string/traffic_updates"
                         android:textSize="16sp"
                         android:textColor="@android:color/white" />
 
