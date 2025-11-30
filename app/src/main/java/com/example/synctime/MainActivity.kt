@@ -35,9 +35,9 @@ class MainActivity : AppCompatActivity() {
         bottomNav.setOnItemSelectedListener { item ->
             val fragment = when (item.itemId) {
                 R.id.nav_home -> HomeFragment()
-//                R.id.nav_notifications -> NotificationsFragment()
+                R.id.nav_notifications -> NotificationsFragment()
                 R.id.nav_settings -> SettingsFragment()
-                R.id.nav_notifications -> FriendsFragment()  // TEMP FOR TESTING PURPOSES
+//                R.id.nav_notifications -> FriendsFragment()  // TEMP FOR TESTING PURPOSES
                 else -> null
             }
             fragment?.let {
