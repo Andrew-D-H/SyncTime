@@ -11,12 +11,29 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import android.graphics.Color
+import android.widget.LinearLayout
+
+class FriendsAdapter(
+    private val isPendingList: Boolean = false,
+    private val onRemoveClick: ((Friend) -> Unit)? = null,
+    private val onAcceptClick: ((Friend) -> Unit)? = null,
+    private val onDeclineClick: ((Friend) -> Unit)? = null,
+    private val onChatClick: ((Friend) -> Unit)? = null
+) : RecyclerView.Adapter<FriendsAdapter.FriendViewHolder>(), Filterable {
 
 class FriendsAdapter :
     RecyclerView.Adapter<FriendsAdapter.FriendViewHolder>(), Filterable {
 
     private var friendsList: MutableList<Friend> = mutableListOf()
     private var filteredList: MutableList<Friend> = mutableListOf()
+
+    fun updateData(newFriends: List<Friend>) {
+        friendsList.clear()
+        friendsList.addAll(newFriends)
+        filteredList.clear()
+        filteredList.addAll(newFriends)
+        notifyDataSetChanged()
+    }
 
     fun addFriend(friend: Friend) {
         friendsList.add(friend)
@@ -43,6 +60,18 @@ class FriendsAdapter :
         val status = itemView.findViewById<TextView>(R.id.tvFriendStatus)
         val profile = itemView.findViewById<ImageView>(R.id.ivFriendProfile)
         val remove = itemView.findViewById<ImageButton>(R.id.btnRemoveFriend)
+        val chat = itemView.findViewById<ImageButton>(R.id.btnChatFriend)
+        val actionButtonsContainer = itemView.findViewById<LinearLayout>(R.id.actionButtonsContainer)
+        val pendingButtonsContainer = itemView.findViewById<LinearLayout>(R.id.pendingButtonsContainer)
+        val accept = itemView.findViewById<ImageButton>(R.id.btnAcceptRequest)
+        val decline = itemView.findViewById<ImageButton>(R.id.btnDeclineRequest)
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FriendViewHolder {
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_friend, parent, false)
+        return FriendViewHolder(view)
+    }
+
     }
 
 
@@ -58,6 +87,9 @@ class FriendsAdapter :
         val friend = filteredList[position]
         holder.name.text = friend.name
         holder.status.text = if (friend.online) "Online" else "Offline"
+        holder.status.setTextColor(if (friend.online) Color.parseColor("#6E43FF") else Color.parseColor("#999999"))
+        Glide.with(holder.itemView.context)
+            .load(friend.profileUrl)
         holder.status.setTextColor(
             if (friend.online) Color.parseColor("#6E43FF")
             else Color.parseColor("#999999")
@@ -69,6 +101,15 @@ class FriendsAdapter :
             .circleCrop()
             .into(holder.profile)
 
+        // Show/hide buttons if pending
+        holder.actionButtonsContainer.visibility = if (isPendingList) View.GONE else View.VISIBLE
+        holder.pendingButtonsContainer.visibility = if (isPendingList) View.VISIBLE else View.GONE
+
+        // Set button click listeners
+        holder.remove.setOnClickListener { onRemoveClick?.invoke(friend) }
+        holder.accept.setOnClickListener { onAcceptClick?.invoke(friend) }
+        holder.decline.setOnClickListener { onDeclineClick?.invoke(friend) }
+        holder.chat.setOnClickListener { onChatClick?.invoke(friend) }
         holder.remove.setOnClickListener {
             onRemoveClick?.invoke(friend)
         }

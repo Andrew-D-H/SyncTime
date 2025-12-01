@@ -10,10 +10,17 @@
     android:elevation="2dp"
     android:clipToOutline="true">
 
+    <!-- Profile Image -->
     <ImageView
         android:id="@+id/ivFriendProfile"
         android:layout_width="48dp"
         android:layout_height="48dp"
+        android:src="@drawable/baseline_account_circle_24"
+        android:contentDescription="Friend profile"
+        android:scaleType="centerCrop"
+        android:layout_marginEnd="12dp" />
+
+    <!-- Name + Status -->
         android:layout_marginTop="0dp"
         android:layout_marginBottom="0dp"
         android:src="@drawable/baseline_account_circle_24"
@@ -25,6 +32,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
+        android:orientation="vertical">
         android:orientation="vertical"
         android:paddingStart="12dp">
 
@@ -46,6 +54,59 @@
             android:textColor="#6E43FF" />
     </LinearLayout>
 
+    <!-- Action Buttons -->
+    <LinearLayout
+        android:id="@+id/actionButtonsContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <!-- Chat Button -->
+        <ImageButton
+            android:id="@+id/btnChatFriend"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@drawable/baseline_chat_24"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            app:tint="#6E43FF"
+            android:layout_marginEnd="8dp"/>
+
+        <!-- Remove Friend Button -->
+        <ImageButton
+            android:id="@+id/btnRemoveFriend"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@drawable/baseline_person_remove_24"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            app:tint="#FF4C4C"
+            android:visibility="visible" />
+    </LinearLayout>
+
+    <!-- Pending Buttons -->
+    <LinearLayout
+        android:id="@+id/pendingButtonsContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:visibility="visible">
+
+        <ImageButton
+            android:id="@+id/btnAcceptRequest"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@drawable/baseline_check_24"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            app:tint="#6E43FF"
+            android:layout_marginEnd="8dp" />
+
+        <ImageButton
+            android:id="@+id/btnDeclineRequest"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@drawable/baseline_close_24"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            app:tint="#999999" />
+    </LinearLayout>
     <ImageButton
         android:id="@+id/btnRemoveFriend"
         android:layout_width="32dp"

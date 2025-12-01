@@ -80,6 +80,7 @@ class LoginActivity : AppCompatActivity() {
                         // Add any other relevant user data here
                     )
                     // save profile data
+                    databaseReference.child(userId).updateChildren(userProfile)
                     databaseReference.child(userId).setValue(userProfile)
                         .addOnSuccessListener {
                             Toast.makeText(this, "User profile saved to DB!", Toast.LENGTH_SHORT).show()
