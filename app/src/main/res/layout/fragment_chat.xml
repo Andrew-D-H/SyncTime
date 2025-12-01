@@ -1,17 +1,37 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <!-- 🔹 Chat Header -->
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/chatToolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/purple_500"
+        android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar"
+        app:navigationIcon="@drawable/ic_arrow_back"
+        app:title="Chat Name"
+        app:subtitle="Online"
+        app:titleTextColor="@android:color/white"
+        app:subtitleTextColor="@android:color/white"
+        app:menu="@menu/chat_toolbar_menu" />
+
+    <!-- 🔹 Messages Recycler -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerMessages"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:padding="8dp"/>
+        android:padding="8dp" />
 
-    <LinearLayout android:layout_width="match_parent"
+    <!-- 🔹 Message Input Area -->
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal" android:padding="8dp">
+        android:orientation="horizontal"
+        android:padding="8dp">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/inputMessage"
@@ -24,6 +44,8 @@
             android:id="@+id/btnSend"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_send"/>
+            android:src="@drawable/ic_send"
+            android:contentDescription="Send message" />
     </LinearLayout>
+
 </LinearLayout>

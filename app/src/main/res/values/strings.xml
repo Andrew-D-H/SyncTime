@@ -3,5 +3,6 @@
     <string name="search_hint">Search...</string>
     <string name="chat">Chat</string>
     <string name="new_trip">New Trip</string>
+    <string name="chat_info">Chat Info</string>
     <string name="places_near_you">Places Near You</string>
 </resources>

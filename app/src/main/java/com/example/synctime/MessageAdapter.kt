@@ -7,7 +7,8 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
 class MessageAdapter(
-    private val messages: List<Message>
+    private val messages: List<Message>,
+    private val currentUserId: String
 ) : RecyclerView.Adapter<MessageAdapter.MessageViewHolder>() {
 
     class MessageViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -24,24 +25,28 @@ class MessageAdapter(
         val msg = messages[position]
         holder.textView.text = msg.text
 
-        // If the message was sent by the current user
-        if (msg.senderId == "me") {
+        val layoutParams = holder.textView.layoutParams as ViewGroup.MarginLayoutParams
+        val density = holder.itemView.context.resources.displayMetrics.density
+        val marginLarge = (60 * density).toInt()
+        val marginSmall = (8 * density).toInt()
+
+        // Check if the message was sent by the current user
+        if (msg.senderId == currentUserId) {
+            // Sent by me - align right with "me" bubble
             holder.textView.setBackgroundResource(R.drawable.message_bubble_me)
-            (holder.textView.layoutParams as ViewGroup.MarginLayoutParams).apply {
-                marginStart = 60
-                marginEnd = 0
-            }
+            layoutParams.marginStart = marginLarge
+            layoutParams.marginEnd = marginSmall
             holder.textView.textAlignment = View.TEXT_ALIGNMENT_VIEW_END
         } else {
+            // Sent by other - align left with "them" bubble
             holder.textView.setBackgroundResource(R.drawable.message_bubble_them)
-            (holder.textView.layoutParams as ViewGroup.MarginLayoutParams).apply {
-                marginStart = 0
-                marginEnd = 60
-            }
+            layoutParams.marginStart = marginSmall
+            layoutParams.marginEnd = marginLarge
             holder.textView.textAlignment = View.TEXT_ALIGNMENT_VIEW_START
         }
+        
+        holder.textView.layoutParams = layoutParams
     }
-
 
     override fun getItemCount() = messages.size
 }
