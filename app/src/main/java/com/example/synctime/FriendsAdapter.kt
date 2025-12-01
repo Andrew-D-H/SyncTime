@@ -21,6 +21,9 @@ class FriendsAdapter(
     private val onChatClick: ((Friend) -> Unit)? = null
 ) : RecyclerView.Adapter<FriendsAdapter.FriendViewHolder>(), Filterable {
 
+class FriendsAdapter :
+    RecyclerView.Adapter<FriendsAdapter.FriendViewHolder>(), Filterable {
+
     private var friendsList: MutableList<Friend> = mutableListOf()
     private var filteredList: MutableList<Friend> = mutableListOf()
 
@@ -44,6 +47,14 @@ class FriendsAdapter(
         notifyDataSetChanged()
     }
 
+    fun updateData(newFriends: List<Friend>) {
+        friendsList.clear()
+        friendsList.addAll(newFriends)
+        filteredList.clear()
+        filteredList.addAll(newFriends)
+        notifyDataSetChanged()
+    }
+
     inner class FriendViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val name = itemView.findViewById<TextView>(R.id.tvFriendName)
         val status = itemView.findViewById<TextView>(R.id.tvFriendStatus)
@@ -61,6 +72,17 @@ class FriendsAdapter(
         return FriendViewHolder(view)
     }
 
+    }
+
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FriendViewHolder {
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.item_friend, parent, false)
+        return FriendViewHolder(view)
+    }
+
+    // button clicks
+    var onRemoveClick: ((Friend) -> Unit)? = null
     override fun onBindViewHolder(holder: FriendViewHolder, position: Int) {
         val friend = filteredList[position]
         holder.name.text = friend.name
@@ -68,6 +90,12 @@ class FriendsAdapter(
         holder.status.setTextColor(if (friend.online) Color.parseColor("#6E43FF") else Color.parseColor("#999999"))
         Glide.with(holder.itemView.context)
             .load(friend.profileUrl)
+        holder.status.setTextColor(
+            if (friend.online) Color.parseColor("#6E43FF")
+            else Color.parseColor("#999999")
+        )
+        Glide.with(holder.itemView.context)
+            .load(friend.profileUrl) // URL or URI stored in Friend object
             .placeholder(R.drawable.baseline_account_circle_24)
             .error(R.drawable.baseline_account_circle_24)
             .circleCrop()
@@ -82,6 +110,9 @@ class FriendsAdapter(
         holder.accept.setOnClickListener { onAcceptClick?.invoke(friend) }
         holder.decline.setOnClickListener { onDeclineClick?.invoke(friend) }
         holder.chat.setOnClickListener { onChatClick?.invoke(friend) }
+        holder.remove.setOnClickListener {
+            onRemoveClick?.invoke(friend)
+        }
     }
 
     override fun getItemCount() = filteredList.size

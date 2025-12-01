@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:background="@android:color/white"
+    android:padding="20dp"
+    tools:context=".AddFragment">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Create a New Trip"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textColor="@color/purple_500"
+            android:layout_marginBottom="16dp"
+            android:gravity="center" />
+
+        <EditText
+            android:id="@+id/trip_name_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Trip name"
+            android:padding="10dp"
+            android:layout_marginBottom="12dp"
+            android:background="@android:color/white"
+            android:elevation="2dp" />
+
+        <EditText
+            android:id="@+id/trip_destination_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Destination"
+            android:padding="10dp"
+            android:layout_marginBottom="12dp"
+            android:background="@android:color/white"
+            android:elevation="2dp" />
+
+        <EditText
+            android:id="@+id/trip_date_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Date (e.g., 2025-10-11)"
+            android:inputType="date"
+            android:padding="10dp"
+            android:layout_marginBottom="12dp"
+            android:background="@android:color/white"
+            android:elevation="2dp" />
+
+        <EditText
+            android:id="@+id/trip_time_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Time (e.g., 3:00 PM)"
+            android:inputType="time"
+            android:padding="10dp"
+            android:layout_marginBottom="16dp"
+            android:background="@android:color/white"
+            android:elevation="2dp" />
+
+        <Button
+            android:id="@+id/btn_create_trip"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="CREATE TRIP"
+            android:backgroundTint="@color/purple_500"
+            android:textColor="@android:color/white"
+            android:textStyle="bold"
+            android:padding="12dp" />
+
+    </LinearLayout>
+</ScrollView>

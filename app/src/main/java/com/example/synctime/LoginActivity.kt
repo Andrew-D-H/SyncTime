@@ -81,6 +81,13 @@ class LoginActivity : AppCompatActivity() {
                     )
                     // save profile data
                     databaseReference.child(userId).updateChildren(userProfile)
+                    databaseReference.child(userId).setValue(userProfile)
+                        .addOnSuccessListener {
+                            Toast.makeText(this, "User profile saved to DB!", Toast.LENGTH_SHORT).show()
+                        }
+                        .addOnFailureListener { e -> // Added 'e' for the exception
+                            Toast.makeText(this, "Failed to save user profile: ${e.message}", Toast.LENGTH_SHORT).show()
+                        }
 
                     // ✅ After login, go to MainActivity
                     startActivity(Intent(this, MainActivity::class.java))
