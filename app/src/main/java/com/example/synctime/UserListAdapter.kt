@@ -12,7 +12,7 @@ class UserListAdapter(
     private val onUserClick: (User) -> Unit
 ) : RecyclerView.Adapter<UserListAdapter.UserViewHolder>() {
 
-    private var selectedPosition: Int = -1
+    private var selectedUserId: String? = null
 
     class UserViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val userName: TextView = view.findViewById(R.id.chatName)
@@ -20,6 +20,7 @@ class UserListAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): UserViewHolder {
+        // Reuse item_chat layout for user list
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_chat, parent, false)
         return UserViewHolder(view)
@@ -27,32 +28,36 @@ class UserListAdapter(
 
     override fun onBindViewHolder(holder: UserViewHolder, position: Int) {
         val user = users[position]
-
-        // Use the helper method to get the correct display name
-        holder.userName.text = user.getActualDisplayName()
+        holder.userName.text = user.displayName
         holder.userEmail.text = user.email
 
-        // Highlight selected item
-        val isSelected = position == selectedPosition
-        holder.itemView.setBackgroundColor(
-            ContextCompat.getColor(
-                holder.itemView.context,
-                if (isSelected) android.R.color.holo_blue_light else android.R.color.transparent
+        // Highlight selected user
+        if (user.uid == selectedUserId) {
+            holder.itemView.setBackgroundColor(
+                ContextCompat.getColor(holder.itemView.context, android.R.color.holo_blue_light)
             )
-        )
+        } else {
+            holder.itemView.setBackgroundColor(
+                ContextCompat.getColor(holder.itemView.context, android.R.color.transparent)
+            )
+        }
 
         holder.itemView.setOnClickListener {
-            val previousPosition = selectedPosition
-            selectedPosition = holder.adapterPosition
-
-            if (previousPosition != -1) {
-                notifyItemChanged(previousPosition)
-            }
-            notifyItemChanged(selectedPosition)
-
             onUserClick(user)
         }
     }
 
     override fun getItemCount() = users.size
+
+    fun setSelectedUser(userId: String) {
+        val previousSelected = selectedUserId
+        selectedUserId = userId
+        
+        // Update UI for previous and new selection
+        users.forEachIndexed { index, user ->
+            if (user.uid == previousSelected || user.uid == userId) {
+                notifyItemChanged(index)
+            }
+        }
+    }
 }
