@@ -65,26 +65,31 @@ class ChatFragment : Fragment() {
     }
 
     private fun setupToolbar() {
+        // Set the chat name as title, no subtitle
         toolbar.title = chatName
-        toolbar.subtitle = "Online"
+        toolbar.subtitle = null
+
+        // Handle back button
         toolbar.setNavigationOnClickListener {
             parentFragmentManager.popBackStack()
         }
 
-        // Load the actual chat name from Firebase
+        // Load the actual chat name from Firebase (in case it's different)
         viewLifecycleOwner.lifecycleScope.launch {
             val displayName = FirebaseRepository.getChatDisplayName(chatId)
-            toolbar.title = displayName
+            if (displayName.isNotBlank() && displayName != "Chat") {
+                toolbar.title = displayName
+            }
         }
     }
 
     private fun setupRecyclerView() {
         val currentUserId = FirebaseRepository.getCurrentUserId() ?: ""
         adapter = MessageAdapter(messages, currentUserId)
-        
+
         val layoutManager = LinearLayoutManager(requireContext())
         layoutManager.stackFromEnd = true  // Start from bottom
-        
+
         recycler.layoutManager = layoutManager
         recycler.adapter = adapter
     }
@@ -120,7 +125,7 @@ class ChatFragment : Fragment() {
                 messages.clear()
                 messages.addAll(newMessages)
                 adapter.notifyDataSetChanged()
-                
+
                 // Scroll to bottom when new messages arrive
                 if (messages.isNotEmpty()) {
                     recycler.scrollToPosition(messages.size - 1)
