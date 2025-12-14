@@ -39,7 +39,7 @@ android {
     buildFeatures {
         compose = true
         dataBinding = true
-        viewBinding  =true
+        viewBinding = true
     }
 }
 
@@ -69,17 +69,20 @@ dependencies {
 
 
     // Import the BoM for the Firebase platform
-    implementation(platform("com.google.firebase:firebase-bom:34.2.0"))
+    implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
 
-    // Add the dependency for the Firebase Authentication library
-    // When using the BoM, you don't specify versions in Firebase library dependencies
+    // Firebase dependencies (using BoM - no versions needed)
     implementation("com.google.firebase:firebase-auth")
-    implementation ("com.google.android.gms:play-services-auth:21.1.0")
+    implementation("com.google.firebase:firebase-database")
 
-    // Also add the dependencies for the Credential Manager libraries and specify their versions
+    // Google Sign-In
+    implementation("com.google.android.gms:play-services-auth:21.1.0")
+
+    // Credential Manager libraries
     implementation("androidx.credentials:credentials:1.3.0")
     implementation("androidx.credentials:credentials-play-services-auth:1.3.0")
     implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
+
     implementation(libs.material)
     implementation(libs.play.services.maps)
     //implementation(libs.firebase.database.ktx)

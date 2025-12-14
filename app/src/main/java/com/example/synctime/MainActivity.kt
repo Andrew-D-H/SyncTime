@@ -3,20 +3,9 @@ package com.example.synctime
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInClient
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.common.api.ApiException
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.GoogleAuthProvider
-private var isDarkTheme = true
+
 class MainActivity : AppCompatActivity() {
-
-
-class   MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-        settheme()
-
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main_menu)
 
@@ -66,30 +55,7 @@ class   MainActivity : AppCompatActivity() {
                 }
 
                 else -> false
-            val fragment = when (item.itemId) {
-                R.id.nav_home -> HomeFragment()
-//                R.id.nav_notifications -> NotificationsFragment()
-                R.id.nav_settings -> SettingsFragment()
-                R.id.nav_notifications -> FriendsFragment()  // TEMP FOR TESTING PURPOSES
-                else -> null
             }
         }
-
     }
-    fun switchdarkmode (view: View) {
-        isDarkTheme = !isDarkTheme // Toggle the theme flag
-        settheme()
-        recreate() // Recreate the activity to apply the new theme
-
-
-    }
-
-    fun settheme() {
-        if (isDarkTheme) {
-            setTheme(R.style.Theme_SyncTimeDark)
-        } else {
-            setTheme(R.style.Theme_SyncTime)
-        }
-    }
-
 }
