@@ -9,7 +9,4 @@
     <color name="white">#FFFFFFFF</color>
     <color name="dark_background">#121212</color>
     <color name="grey">#212121</color>
-    <color name="Grey">#212121</color>
-    <color name="chat_bubble_me">#7C4DFF</color>       <!-- Purple -->
-    <color name="chat_bubble_them">#E0E0E0</color>     <!-- Light Gray -->
 </resources>

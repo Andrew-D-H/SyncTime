@@ -1,64 +1,27 @@
 package com.example.synctime
 
 import android.os.Bundle
-import android.util.Log
 import android.view.View
-import android.widget.TextView
-import android.widget.Toast
 import androidx.fragment.app.Fragment
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.*
-import android.widget.ImageView
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.google.android.material.switchmaterial.SwitchMaterial
 
 class SettingsFragment : Fragment(R.layout.settings_screen) {
-
-    private lateinit var auth: FirebaseAuth
-    private lateinit var database: DatabaseReference
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val tvUserName: TextView = view.findViewById(R.id.tvUserName)
-        val ivProfilePic: ImageView = view.findViewById(R.id.ivProfilePic)
-        auth = FirebaseAuth.getInstance()
+        // Bind the dark mode toggle switch
+        val darkModeSwitch: SwitchMaterial = view.findViewById(R.id.dark_mode_switch)
 
-        val currentUser = auth.currentUser
-        if (currentUser != null) {
-            val userId = currentUser.uid
-            database = FirebaseDatabase.getInstance().getReference("users").child(userId)
+        // Get the current theme state from MainActivity
+        val mainActivity = activity as MainActivity
+        darkModeSwitch.isChecked = mainActivity.isDarkModeEnabled()
 
-            database.addListenerForSingleValueEvent(object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    val name = snapshot.child("name").getValue(String::class.java)
-                    val photoUrl = snapshot.child("profileURL").getValue(String::class.java)
-
-                    tvUserName.text = name ?: "No Name Found"
-
-                    ivProfilePic.imageTintList = null // clear tint before loading from Glide
-
-                    // Load profile picture using Glide
-                    Glide.with(requireContext())
-                        .load(photoUrl)
-                        .placeholder(R.drawable.baseline_account_circle_24) // existing drawable
-                        .error(R.drawable.baseline_account_circle_24)
-                        .diskCacheStrategy(DiskCacheStrategy.DATA)
-                        .circleCrop()
-                        .into(ivProfilePic)
-
-                    // DEBUGGING
-                    Log.d("SettingsFragment", "photoUrl = $photoUrl")
-
-                }
-
-                override fun onCancelled(error: DatabaseError) {
-                    Toast.makeText(requireContext(), "Failed to load user data", Toast.LENGTH_SHORT)
-                        .show()
-                }
-            })
-        } else {
-            // pass
+        // Listen for switch toggle changes
+        darkModeSwitch.setOnCheckedChangeListener { _, isChecked ->
+            mainActivity.toggleDarkMode(isChecked) // Notify MainActivity to update theme
         }
+
+
     }
 }

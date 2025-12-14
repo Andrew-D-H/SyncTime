@@ -48,8 +48,7 @@
                     android:layout_height="48dp"
                     android:src="@drawable/baseline_account_circle_24"
                     app:tint="@android:color/white"
-                    android:contentDescription="@string/user_profile" />
-
+                    android:contentDescription="User profile" />
 
                 <TextView
                     android:id="@+id/tvUserName"
@@ -66,7 +65,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/account_settings"
+                android:text="Account Settings"
                 android:textSize="14sp"
                 android:textColor="@android:color/darker_gray"
                 android:textStyle="bold"
@@ -85,7 +84,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="16dp"
-                    android:text="@string/edit_profile"
+                    android:text="Edit profile"
                     android:textSize="16sp"
                     android:textColor="@android:color/white" />
 
@@ -94,7 +93,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="16dp"
-                    android:text="@string/change_password"
+                    android:text="Change password"
                     android:textSize="16sp"
                     android:textColor="@android:color/white" />
 
@@ -103,7 +102,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="16dp"
-                    android:text="@string/notification_settings"
+                    android:text="Notification settings"
                     android:textSize="16sp"
                     android:textColor="@android:color/white" />
 
@@ -120,7 +119,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="@string/push_notification"
+                        android:text="Push notifications"
                         android:textSize="16sp"
                         android:textColor="@android:color/white" />
 
@@ -136,33 +135,6 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:paddingHorizontal="16dp"
-                    android:paddingVertical="12dp">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="@string/dark_mode"
-                        android:textColor="@android:color/white"
-                        android:textSize="16sp" />
-
-                    <com.google.android.material.switchmaterial.SwitchMaterial
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:checked="true"
-                        app:thumbTint="@android:color/white"
-                        app:trackTint="@color/purple_500"
-                        android:onClick="switchdarkmode"/>
-
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
                     android:paddingHorizontal="16dp"
@@ -172,7 +144,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="@string/language"
+                        android:text="Dark mode"
                         android:textSize="16sp"
                         android:textColor="@android:color/white" />
 
@@ -180,10 +152,9 @@
                         android:id="@+id/dark_mode_switch"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:checked="false"
+                        android:checked="true"
                         app:thumbTint="@android:color/white"
-                        app:trackTint="@color/purple_500"
-                        android:onClick="setlanguage"/>
+                        app:trackTint="@color/purple_500" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -191,7 +162,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/more"
+                android:text="More"
                 android:textSize="14sp"
                 android:textColor="@android:color/darker_gray"
                 android:textStyle="bold"
@@ -209,7 +180,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="16dp"
-                    android:text="@string/about_us"
+                    android:text="About us"
                     android:textSize="16sp"
                     android:textColor="@android:color/white" />
 
@@ -218,13 +189,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="16dp"
-                    android:text="@string/privacy_policy"
+                    android:text="Privacy policy"
                     android:textSize="16sp"
                     android:textColor="@android:color/white" />
             </LinearLayout>
-
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
-
-
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
