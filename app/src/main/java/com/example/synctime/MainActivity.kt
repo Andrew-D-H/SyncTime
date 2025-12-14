@@ -1,19 +1,14 @@
 package com.example.synctime
 
 import android.os.Bundle
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInClient
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.common.api.ApiException
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.GoogleAuthProvider
+
 private var isDarkTheme = true
+
 class MainActivity : AppCompatActivity() {
 
-
-class   MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         settheme()
 
@@ -45,15 +40,14 @@ class   MainActivity : AppCompatActivity() {
                 }
 
                 R.id.nav_add -> {
-                    // Show the Bottom Sheet instead of a Fragment
                     val addBottomSheet = AddBottomSheet()
                     addBottomSheet.show(supportFragmentManager, "AddBottomSheet")
-                    false // prevents highlighting the add icon (since it's not a real tab)
+                    false
                 }
 
                 R.id.nav_notifications -> {
                     supportFragmentManager.beginTransaction()
-                        .replace(R.id.fragment_container, NotificationsFragment())
+                        .replace(R.id.fragment_container, FriendsFragment())
                         .commit()
                     true
                 }
@@ -66,22 +60,14 @@ class   MainActivity : AppCompatActivity() {
                 }
 
                 else -> false
-            val fragment = when (item.itemId) {
-                R.id.nav_home -> HomeFragment()
-//                R.id.nav_notifications -> NotificationsFragment()
-                R.id.nav_settings -> SettingsFragment()
-//                R.id.nav_notifications -> FriendsFragment()  // TEMP FOR TESTING PURPOSES
-                else -> null
             }
         }
-
     }
-    fun switchdarkmode (view: View) {
+
+    fun switchdarkmode(view: View) {
         isDarkTheme = !isDarkTheme // Toggle the theme flag
         settheme()
         recreate() // Recreate the activity to apply the new theme
-
-
     }
 
     fun settheme() {
@@ -91,5 +77,4 @@ class   MainActivity : AppCompatActivity() {
             setTheme(R.style.Theme_SyncTime)
         }
     }
-
 }
