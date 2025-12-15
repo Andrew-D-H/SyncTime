@@ -82,30 +82,27 @@
 
                 <!-- Edit Profile -->
                 <TextView
+                    android:id="@+id/btnEditProfile"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="16dp"
                     android:text="Edit profile"
                     android:textSize="16sp"
-                    android:textColor="@android:color/white" />
+                    android:textColor="@android:color/white"
+                    android:clickable="true"
+                    android:focusable="true" />
 
-                <!-- Change Password -->
+                <!-- Manage Friends -->
                 <TextView
+                    android:id="@+id/btnManageFriends"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="16dp"
-                    android:text="Change password"
+                    android:text="Manage Friends"
                     android:textSize="16sp"
-                    android:textColor="@android:color/white" />
-
-                <!-- Notification Settings -->
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="16dp"
-                    android:text="Notification settings"
-                    android:textSize="16sp"
-                    android:textColor="@android:color/white" />
+                    android:textColor="@android:color/white"
+                    android:clickable="true"
+                    android:focusable="true" />
 
                 <!-- Push Notifications -->
                 <LinearLayout

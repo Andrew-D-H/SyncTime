@@ -54,7 +54,7 @@ class MainActivity : AppCompatActivity() {
 
                 R.id.nav_settings -> {
                     supportFragmentManager.beginTransaction()
-                        .replace(R.id.fragment_container, FriendsFragment())
+                        .replace(R.id.fragment_container, SettingsFragment())
                         .commit()
                     true
                 }

@@ -22,6 +22,22 @@ class SettingsFragment : Fragment(R.layout.settings_screen) {
 
         val tvUserName: TextView = view.findViewById(R.id.tvUserName)
         val ivProfilePic: ImageView = view.findViewById(R.id.ivProfilePic)
+        val btnEditProfile = view.findViewById<TextView>(R.id.btnEditProfile)
+        val btnManageFriends = view.findViewById<TextView>(R.id.btnManageFriends)
+
+        btnEditProfile.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, EditProfileFragment())
+                .addToBackStack(null)
+                .commit()
+        }
+
+        btnManageFriends.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, FriendsFragment())
+                .addToBackStack(null)
+                .commit()
+        }
         auth = FirebaseAuth.getInstance()
 
         val currentUser = auth.currentUser
