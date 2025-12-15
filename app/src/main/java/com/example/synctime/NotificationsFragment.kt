@@ -4,10 +4,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.PopupMenu
+import androidx.appcompat.widget.PopupMenu
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.*
 
 class NotificationsFragment : Fragment() {
 
@@ -15,11 +17,16 @@ class NotificationsFragment : Fragment() {
     private lateinit var adapter: NotificationsAdapter
     private val notifications = mutableListOf<Notification>()
 
+    private val db = FirebaseDatabase.getInstance().reference
+    private val auth = FirebaseAuth.getInstance()
+
+    private var notificationsListener: ValueEventListener? = null
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         return inflater.inflate(R.layout.fragment_notifications, container, false)
     }
 
@@ -28,19 +35,17 @@ class NotificationsFragment : Fragment() {
 
         recyclerView = view.findViewById(R.id.rvNotifications)
 
-        // initial data
-        notifications.clear()
-        notifications.addAll(dummyNotifications())  // dummy data for now, replace with actual data
-
         adapter = NotificationsAdapter(
             items = notifications,
             onItemClick = { notif, position ->
-                // Mark as read when tapped
                 if (!notif.isRead) {
+                    // 1) Update local model immediately
                     notif.isRead = true
                     adapter.notifyItemChanged(position)
+
+                    // 2) Persist to Firebase
+                    markRead(notif.id, true)
                 }
-                // TODO: navigate to detail if you have a detail screen
             },
             onMoreClick = { notif, anchorView ->
                 showNotificationMenu(notif, anchorView)
@@ -49,66 +54,72 @@ class NotificationsFragment : Fragment() {
 
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         recyclerView.adapter = adapter
+
+        attachNotificationsListener()
     }
 
-    // on more (dots) click
-    private fun showNotificationMenu(notification: Notification, anchor: View) {
-        val popup = PopupMenu(requireContext(), anchor)
-        popup.menuInflater.inflate(R.menu.menu_notification_item, popup.menu)
+    override fun onDestroyView() {
+        super.onDestroyView()
+        detachNotificationsListener()
+    }
 
-        popup.setOnMenuItemClickListener { item ->
-            when (item.itemId) {
-                R.id.action_mark_unread -> {
-                    notification.isRead = false
-                    val index = notifications.indexOfFirst { it.id == notification.id }
-                    if (index != -1) adapter.notifyItemChanged(index)
-                    true
+    private fun notificationsRef(): DatabaseReference? {
+        val uid = auth.currentUser?.uid ?: return null
+        return db.child("users").child(uid).child("notifications")
+    }
+
+    private fun attachNotificationsListener() {
+        val ref = notificationsRef() ?: return
+
+        // If you want newest first using a query:
+        val query = ref.orderByChild("timestamp")
+
+        notificationsListener = object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                notifications.clear()
+                snapshot.children.forEach { child ->
+                    val notif = child.getValue(Notification::class.java)
+                    if (notif != null) notifications.add(notif)
                 }
-                R.id.action_delete -> {
-                    val index = notifications.indexOfFirst { it.id == notification.id }
-                    if (index != -1) {
-                        notifications.removeAt(index)
-                        adapter.notifyItemRemoved(index)
-                    }
-                    true
-                }
-                else -> false
+
+                // orderByChild gives oldest->newest, reverse for newest at top
+                notifications.sortByDescending { it.timestamp }
+
+                adapter.notifyDataSetChanged()
             }
+
+            override fun onCancelled(error: DatabaseError) {}
         }
 
-        popup.show()
+        query.addValueEventListener(notificationsListener as ValueEventListener)
     }
 
-    // Temporary fake data so you can see the UI
-    private fun dummyNotifications(): List<Notification> = listOf(
-        Notification(
-            id = 1,
-            avatarRes = R.drawable.baseline_account_circle_24,
-            title = "Gandalf the Grey has arrived at the Shire",
-            meta = "Updates • 5 min ago",
-            isRead = false
-        ),
-        Notification(
-            id = 2,
-            avatarRes = R.drawable.baseline_account_circle_24,
-            title = "Harry Potter added you to a group",
-            meta = "Groups • 28 min ago",
-            isRead = false
-        ),
-        Notification(
-            id = 3,
-            avatarRes = R.drawable.baseline_account_circle_24,
-            title = "Frank Reynolds added you to a group",
-            meta = "Groups • 12 hours ago",
-            isRead = true
-        ),
-        Notification(
-            id = 4,
-            avatarRes = R.drawable.baseline_account_circle_24,
-            title = "Dr. Doofenshmirtz accepted your friend request",
-            meta = "Friends • 1 week ago",
-            isRead = true
-        )
-    )
-}
+    private fun detachNotificationsListener() {
+        val ref = notificationsRef() ?: return
+        notificationsListener?.let { ref.removeEventListener(it) }
+        notificationsListener = null
+    }
 
+    private fun markRead(notificationId: String, read: Boolean) {
+        val ref = notificationsRef() ?: return
+        ref.child(notificationId).child("isRead").setValue(read)
+    }
+
+    private fun deleteNotification(notificationId: String) {
+        val ref = notificationsRef() ?: return
+        ref.child(notificationId).removeValue()
+    }
+
+    private fun showNotificationMenu(notification: Notification, anchor: View) {
+        val options = arrayOf("Mark as unread", "Delete")
+
+        com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
+            .setItems(options) { _, which ->
+                when (which) {
+                    0 -> markRead(notification.id, false)
+                    1 -> deleteNotification(notification.id)
+                }
+            }
+            .show()
+    }
+}

@@ -47,14 +47,14 @@ class MainActivity : AppCompatActivity() {
 
                 R.id.nav_notifications -> {
                     supportFragmentManager.beginTransaction()
-                        .replace(R.id.fragment_container, FriendsFragment())
+                        .replace(R.id.fragment_container, NotificationsFragment())
                         .commit()
                     true
                 }
 
                 R.id.nav_settings -> {
                     supportFragmentManager.beginTransaction()
-                        .replace(R.id.fragment_container, SettingsFragment())
+                        .replace(R.id.fragment_container, FriendsFragment())
                         .commit()
                     true
                 }

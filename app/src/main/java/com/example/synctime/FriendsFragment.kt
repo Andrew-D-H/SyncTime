@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.synctime.repository.NotificationRepository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.DataSnapshot
@@ -228,6 +229,16 @@ class FriendsFragment : Fragment(R.layout.manage_friends) {
             "users/$requesterId/requests/$uid" to null
         )
         db.updateChildren(updates)
+
+        // Notification
+        getCurrentUserName { yourName ->
+            NotificationRepository.sendNotification(
+                toUid = requesterId,
+                title = "$yourName accepted your friend request",
+                meta = "Friends • just now",
+                type = "friends"
+            )
+        }
     }
 
     private fun declineRequest(requesterId: String) {
@@ -283,6 +294,25 @@ class FriendsFragment : Fragment(R.layout.manage_friends) {
                 adapter.updateData(results)
             }
         }
+    }
+
+    // -------------------------
+    // Helpers
+    // -------------------------
+    private fun getCurrentUserName(onResult: (String) -> Unit) {
+        val uid = auth.currentUser?.uid ?: return
+
+        db.child("users")
+            .child(uid)
+            .child("name")
+            .get()
+            .addOnSuccessListener { snapshot ->
+                val name = snapshot.getValue(String::class.java) ?: "Someone"
+                onResult(name)
+            }
+            .addOnFailureListener {
+                onResult("Someone")
+            }
     }
 
     // -------------------------

@@ -5,4 +5,6 @@
     <string name="new_trip">New Trip</string>
     <string name="places_near_you">Places Near You</string>
     <string name="google_maps_key">AIzaSyC6PJV6xxpJKlo4gUtZhEhrUGbmB7vb_UY</string>
+    <string name="mark_as_unread">Mark as unread</string>
+    <string name="delete">Delete</string>
 </resources>
