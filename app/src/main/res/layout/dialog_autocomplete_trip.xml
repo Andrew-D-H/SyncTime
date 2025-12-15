@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <EditText
+        android:id="@+id/input_address"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter an address"
+        android:inputType="text"
+        android:padding="8dp" />
+
+    <!-- RecyclerView for predictions -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/predictionsRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:scrollbars="vertical"
+        android:overScrollMode="ifContentScrolls" />
+</LinearLayout>

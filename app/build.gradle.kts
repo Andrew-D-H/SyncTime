@@ -63,6 +63,9 @@ dependencies {
     implementation("com.google.android.material:material:1.12.0")
     implementation("com.google.android.material:material:1.9.0") // Latest Material Components
     implementation("androidx.preference:preference-ktx:1.2.1")
+    implementation("com.google.android.libraries.places:places:3.2.0") // Google Places SDK
+    implementation("com.google.android.gms:play-services-maps:18.1.0") // Google Maps SDK
+    implementation("com.squareup.okhttp3:okhttp:4.10.0") // HTTP client for API calls
 
     //google maps dependencies
     implementation("com.google.android.gms:play-services-maps:18.2.0")
