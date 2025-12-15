@@ -14,71 +14,51 @@ class MainActivity : AppCompatActivity() {
     private var isDarkTheme: Boolean = false // Default to light theme
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        // Load the saved dark mode preference
+        // Load saved preferences BEFORE calling super.onCreate()
         preferences = PreferenceManager.getDefaultSharedPreferences(this)
         isDarkTheme = preferences.getBoolean("dark_theme", false)
 
-        // Log theme status
+        // Apply the saved theme before initializing the activity
+        AppCompatDelegate.setDefaultNightMode(
+            if (isDarkTheme) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
+        )
+        Log.d("MainActivity", "Launching in ${if (isDarkTheme) "Dark Mode" else "Light Mode"}")
+
+        // Now call super.onCreate()
+        super.onCreate(savedInstanceState)
+
+        // Initialize views and activity logic
+        supportActionBar?.hide()
+        setContentView(R.layout.main_menu)
+
         Log.d("MainActivity", "Theme loaded: Dark mode is $isDarkTheme")
 
-        // Apply the saved theme
-        val mode = if (isDarkTheme) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
-        if (AppCompatDelegate.getDefaultNightMode() != mode) {
-            AppCompatDelegate.setDefaultNightMode(mode)
-        }
-
-        // Set the content view
-        setContentView(R.layout.main_menu)
+        // Set up bottom navigation
         setupBottomNavigation(findViewById(R.id.bottom_navigation))
     }
 
     /**
-     * Applies the theme (Light or Dark) using AppCompatDelegate.
-     * This ensures that it doesn't reapply the same mode, avoiding infinite loops.
-     */
-    private fun applyTheme(darkTheme: Boolean) {
-        val currentMode = if (darkTheme) {
-            AppCompatDelegate.MODE_NIGHT_YES
-        } else {
-            AppCompatDelegate.MODE_NIGHT_NO
-        }
-
-        // Only apply the theme if the mode is different
-        if (AppCompatDelegate.getDefaultNightMode() != currentMode) {
-            Log.d("MainActivity", "Applying theme: ${if (darkTheme) "Dark Mode" else "Light Mode"}")
-            AppCompatDelegate.setDefaultNightMode(currentMode) // Change the theme mode
-        }
-    }
-
-    /**
-     * Toggles the theme (Light or Dark) when the user changes it, e.g., via settings.
+     * Toggles the theme (Light or Dark) and saves the state.
      */
     fun toggleDarkMode(enableDarkMode: Boolean) {
-        if (isDarkTheme != enableDarkMode) { // Avoid unnecessary changes
-            Log.d("MainActivity", "Toggling theme to: ${if (enableDarkMode) "Dark Mode" else "Light Mode"}")
-
-            // Update dark theme state
-            isDarkTheme = enableDarkMode
-
-            // Save the new preference
-            preferences.edit().putBoolean("dark_theme", isDarkTheme).apply()
-
-            // Apply the new theme
-            val mode = if (isDarkTheme) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
-            AppCompatDelegate.setDefaultNightMode(mode)
-
-            // Recreate the activity to reflect changes
-            recreate()
-        } else {
-            Log.d("MainActivity", "Theme change ignored as it's already set to: ${if (enableDarkMode) "Dark Mode" else "Light Mode"}")
+        if (isDarkTheme == enableDarkMode) {
+            Log.d("MainActivity", "Theme is already set to: ${if (enableDarkMode) "Dark Mode" else "Light Mode"}")
+            return
         }
+
+        // Update theme state and preferences
+        isDarkTheme = enableDarkMode
+        preferences.edit().putBoolean("dark_theme", isDarkTheme).apply()
+
+        // Apply the theme and recreate the activity to reflect changes
+        AppCompatDelegate.setDefaultNightMode(
+            if (enableDarkMode) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
+        )
+        recreate()
     }
 
     /**
-     * Returns whether dark mode is currently enabled.
-     * Checks SharedPreferences value to determine the mode.
+     * Checks if dark mode is currently active.
      */
     fun isDarkModeEnabled(): Boolean {
         return isDarkTheme
@@ -88,7 +68,7 @@ class MainActivity : AppCompatActivity() {
      * Set up BottomNavigationView to switch fragments.
      */
     private fun setupBottomNavigation(bottomNavigationView: BottomNavigationView) {
-        // Show HomeFragment by default
+        // Default fragment is HomeFragment
         supportFragmentManager.beginTransaction()
             .replace(R.id.fragment_container, HomeFragment())
             .commit()
@@ -101,7 +81,7 @@ class MainActivity : AppCompatActivity() {
                     AddBottomSheet().show(supportFragmentManager, "AddBottomSheet")
                     return@setOnItemSelectedListener false
                 }
-                R.id.nav_notifications -> NotificationsFragment()
+                R.id.nav_notifications -> FriendsFragment()
                 R.id.nav_settings -> SettingsFragment()
                 else -> null
             }

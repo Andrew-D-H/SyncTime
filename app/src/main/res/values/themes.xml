@@ -3,7 +3,17 @@
         <item name="colorPrimary">@color/purple_500</item>
         <item name="colorPrimaryDark">@color/purple_700</item>
         <item name="colorAccent">@color/teal_200</item>
-        <item name="android:windowBackground">@color/white</item> <!-- Light theme -->
-        <item name="android:textColor">@color/white</item>         <!-- Light theme -->
+        <item name="android:windowBackground">@color/white</item>
+        <item name="android:textColor">@color/black</item>
     </style>
+
+    <style name="Theme.NewTrip.Light" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="colorPrimary">#6200EE</item>
+        <item name="colorPrimaryVariant">#3700B3</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="android:statusBarColor">#3700B3</item>
+        <item name="android:windowBackground">#FFFFFF</item>
+    </style>
+
+
 </resources>

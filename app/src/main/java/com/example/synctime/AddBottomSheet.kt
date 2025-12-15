@@ -16,7 +16,7 @@ class AddBottomSheet : BottomSheetDialogFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.layout_bottom_sheet_add, container, false)
+        return inflater.inflate(R.layout.trip, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -39,7 +39,7 @@ class AddBottomSheet : BottomSheetDialogFragment() {
             } else {
                 Toast.makeText(
                     requireContext(),
-                    "Trip Created: $name → $dest ($tripDate at $tripTime)",
+                    "com.example.synctime.Trip Created: $name → $dest ($tripDate at $tripTime)",
                     Toast.LENGTH_LONG
                 ).show()
                 dismiss() // Close the bottom sheet after success

@@ -4,5 +4,12 @@
         <item name="android:textSize">12sp</item>
     </style>
 
+    <style name="Theme.NewTrip.Static" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="colorPrimary">#6200EE</item>
+        <item name="colorPrimaryVariant">#3700B3</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="android:statusBarColor">#3700B3</item>
+        <item name="android:windowBackground">#FFFFFF</item>
+    </style>
 
 </resources>
