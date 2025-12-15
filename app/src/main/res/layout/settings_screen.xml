@@ -29,7 +29,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:padding="16dp"
+            android:background="?android:windowBackground">
 
             <!-- Profile Header -->
             <LinearLayout
@@ -42,6 +43,7 @@
                 android:layout_marginBottom="24dp">
 
                 <ImageView
+                    android:id="@+id/ivProfilePic"
                     android:layout_width="48dp"
                     android:layout_height="48dp"
                     android:src="@drawable/baseline_account_circle_24"
@@ -50,6 +52,7 @@
 
 
                 <TextView
+                    android:id="@+id/tvUserName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="12dp"
@@ -151,8 +154,8 @@
                         android:layout_height="wrap_content"
                         android:checked="true"
                         app:thumbTint="@android:color/white"
-                        app:trackTint="@color/purple_500" />
-
+                        app:trackTint="@color/purple_500"
+                        android:onClick="switchdarkmode"/>
 
 
                 </LinearLayout>
@@ -174,6 +177,7 @@
                         android:textColor="@android:color/white" />
 
                     <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/dark_mode_switch"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:checked="false"

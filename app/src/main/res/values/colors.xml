@@ -7,4 +7,10 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="dark_background">#121212</color>
+    <color name="Grey">#303030</color>
+
+    <color name="chat_bubble_me">#7C4DFF</color>       <!-- Purple -->
+    <color name="chat_bubble_them">#E0E0E0</color>     <!-- Light Gray -->
+
 </resources>
