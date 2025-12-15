@@ -40,6 +40,8 @@
             android:theme="@style/Theme.SyncTime"> <!-- Default theme -->
         </activity>
 
+
+
     </application>
 
 </manifest>

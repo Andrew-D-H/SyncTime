@@ -3,69 +3,62 @@ package com.example.synctime
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
+
+// Model class for a Search Result
+data class SearchResult(
+    val uid: String,
+    val displayName: String,
+    val additionalInfo: String? = null
+)
 
 class SearchAdapter(
-    private var users: MutableList<Friend> = mutableListOf(),
-    private val onAddClick: (Friend) -> Unit,
-    private val onCancelClick: (Friend) -> Unit
-) : RecyclerView.Adapter<SearchAdapter.ViewHolder>() {
+    private val onAddClick: (SearchResult) -> Unit,
+    private val onCancelClick: (SearchResult) -> Unit
+) : RecyclerView.Adapter<SearchAdapter.SearchViewHolder>() {
 
-    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val name: TextView = itemView.findViewById(R.id.tvFriendName)
-        val profile: ImageView = itemView.findViewById(R.id.ivFriendProfile)
-        val btnAdd: Button = itemView.findViewById(R.id.btnAddFriend)
+    // Immutable list of search results (contents can be updated, but the reference cannot be reassigned)
+    private val results: MutableList<SearchResult> = mutableListOf()
+
+    // Function to update the list of search results
+    fun updateResults(newResults: List<SearchResult>) {
+        results.clear() // Clear the previous results
+        results.addAll(newResults) // Add new results
+        notifyDataSetChanged() // Notify RecyclerView about data changes
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_search_user, parent, false)
-        return ViewHolder(view)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SearchViewHolder {
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_search_user, parent, false)
+        return SearchViewHolder(view)
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val user = users[position]
+    override fun onBindViewHolder(holder: SearchViewHolder, position: Int) {
+        val searchResult = results[position]
 
-        holder.name.text = user.name
+        // Bind the data to the ViewHolder
+        holder.displayName.text = searchResult.displayName
+        holder.additionalInfo.text = searchResult.additionalInfo ?: "No additional info available"
 
-        Glide.with(holder.itemView.context)
-            .load(user.profileUrl)
-            .placeholder(R.drawable.baseline_account_circle_24)
-            .error(R.drawable.baseline_account_circle_24)
-            .circleCrop()
-            .into(holder.profile)
-
-        // Update button text and enabled state based on pending status
-        if (user.isPending) {
-            holder.btnAdd.text = "Pending"
-            holder.btnAdd.alpha = 0.6f
-        } else {
-            holder.btnAdd.text = "Add"
-            holder.btnAdd.alpha = 1f
+        // Handle the "Add" button click
+        holder.addButton.setOnClickListener {
+            onAddClick(searchResult)
         }
 
-        // Handle button clicks
-        holder.btnAdd.setOnClickListener {
-            if (user.isPending) {
-                onCancelClick(user)
-                user.isPending = false
-            } else {
-                onAddClick(user)
-                user.isPending = true
-            }
-            notifyItemChanged(position)
+        // Handle the "Cancel" button click
+        holder.cancelButton.setOnClickListener {
+            onCancelClick(searchResult)
         }
     }
 
-    override fun getItemCount() = users.size
+    override fun getItemCount(): Int = results.size
 
-    fun updateData(newUsers: List<Friend>) {
-        users.clear()
-        users.addAll(newUsers)
-        notifyDataSetChanged()
+    // Custom ViewHolder to handle item views
+    class SearchViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val displayName: TextView = itemView.findViewById(R.id.searchDisplayName)
+        val additionalInfo: TextView = itemView.findViewById(R.id.searchAdditionalInfo)
+        val addButton: View = itemView.findViewById(R.id.btnAdd)
+        val cancelButton: View = itemView.findViewById(R.id.btnCancel)
     }
 }
