@@ -38,19 +38,29 @@
             app:startIconDrawable="@android:drawable/ic_menu_search">
 
             <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/search_bar"
+                android:id="@+id/search_bar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Enter a destination" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- ✅ Autocomplete Predictions dropdown list -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/predictionsRecyclerView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Enter a destination" />
-        </com.google.android.material.textfield.TextInputLayout>
+            android:visibility="gone"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp"
+            tools:listitem="@layout/item_prediction" />
 
         <!-- Google Maps -->
         <com.google.android.gms.maps.MapView
             android:id="@+id/mapView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="0.7"
-            android:layout_marginBottom="16dp"/>
+            android:layout_weight="0.5"
+            android:layout_marginBottom="16dp" />
 
         <!-- Floating Buttons overlay -->
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -71,8 +81,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent" />
 
-
-            <!-- Open com.example.synctime.Trip Button -->
+            <!-- Open Trip Button -->
             <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
                 android:id="@+id/btn_open_trip"
                 android:layout_width="wrap_content"
@@ -98,28 +107,71 @@
                 app:iconTint="@android:color/white"
                 app:layout_constraintBottom_toTopOf="@id/btn_chat"
                 app:layout_constraintEnd_toEndOf="parent"
-                android:layout_marginBottom="12dp"/>
+                android:layout_marginBottom="12dp" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <!-- Places Header -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="8dp"
-            android:text="@string/places_near_you"
-            android:textStyle="bold"
-            android:textColor="?android:textColor" />
-
-        <!-- RecyclerView for multiple places -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/placesRecyclerView"
+        <!-- Bottom half container -->
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/recommendedScroll"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight=".3"
-            tools:listitem="@layout/item_place" />
+            android:layout_weight="0.5"
+            android:fillViewport="true">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingBottom="16dp">
+
+                <TextView
+                    android:id="@+id/recommendedHeader"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="8dp"
+                    android:text="Recommended"
+                    android:textStyle="bold"
+                    android:textSize="18sp"
+                    android:textColor="?android:textColor" />
+
+                <!-- ✅ Category Dropdown (proper exposed dropdown menu) -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/categoryDropdownLayout"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="8dp"
+                    android:hint="Category"
+                    app:endIconMode="dropdown_menu">
+
+                    <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                        android:id="@+id/categoryDropdown"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="none"
+                        android:focusable="true"
+                        android:clickable="true"
+                        android:importantForAutofill="no"
+                        android:dropDownHeight="wrap_content"
+                        android:paddingTop="12dp"
+                        android:paddingBottom="12dp" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <!-- ✅ Single RecyclerView (updates when category changes) -->
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recommendedRecyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false"
+                    tools:listitem="@layout/item_place" />
+
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
 
     </LinearLayout>
-
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
