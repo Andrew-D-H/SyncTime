@@ -3,8 +3,10 @@ package com.example.synctime
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.os.LocaleListCompat
 import androidx.preference.PreferenceManager
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
@@ -94,6 +96,27 @@ class MainActivity : AppCompatActivity() {
             } else {
                 false
             }
+        }
+    }
+
+    /**
+     * Toggles between English and Spanish language.
+     */
+    fun setlanguage(view: View) {
+        // set app locale given the user's selected locale
+        val lang = AppCompatDelegate.getApplicationLocales()
+        if (lang.toLanguageTags().toString() == "en") {
+            AppCompatDelegate.setApplicationLocales(
+                LocaleListCompat.forLanguageTags(
+                    "es" // ISO for Spanish
+                )
+            )
+        } else if (lang.toLanguageTags().toString() == "es") {
+            AppCompatDelegate.setApplicationLocales(
+                LocaleListCompat.forLanguageTags(
+                    "en" // ISO for English
+                )
+            )
         }
     }
 }
