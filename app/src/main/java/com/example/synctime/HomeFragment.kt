@@ -52,6 +52,16 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
     private lateinit var predictionsAdapter: PredictionsAdapter
     private var currentPlacesAdapter: SimplePlaceAdapter? = null
+    
+    // Recommendation system constants
+    private val NEARBY_SEARCH_RADIUS = 5000 // meters
+    private val MAX_PLACES_PER_CATEGORY = 8
+    private val VICINITY_MAX_LENGTH = 40
+    private val VICINITY_TRUNCATE_LENGTH = 37
+    
+    // Cache for UI elements
+    private var categoryDropdownRef: MaterialAutoCompleteTextView? = null
+    private var recommendedRecyclerViewRef: RecyclerView? = null
 
     data class PlaceItem(
         val name: String,
@@ -217,6 +227,10 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     private fun setupRecommendationSystem(view: View) {
         val categoryDropdown = view.findViewById<MaterialAutoCompleteTextView>(R.id.categoryDropdown)
         val recommendedRecyclerView = view.findViewById<RecyclerView>(R.id.recommendedRecyclerView)
+        
+        // Cache view references for later use
+        categoryDropdownRef = categoryDropdown
+        recommendedRecyclerViewRef = recommendedRecyclerView
 
         // Set up RecyclerView
         recommendedRecyclerView.layoutManager = LinearLayoutManager(requireContext())
@@ -270,16 +284,13 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             else -> "restaurant"
         }
 
-        val radius = 5000 // 5km radius
-        val apiKey = DIRECTIONS_API_KEY
-        
         val url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json" +
                 "?location=${location.latitude},${location.longitude}" +
-                "&radius=$radius" +
+                "&radius=$NEARBY_SEARCH_RADIUS" +
                 "&type=$placeType" +
-                "&key=$apiKey"
+                "&key=$DIRECTIONS_API_KEY"
 
-        Log.d("HomeFragment", "Fetching nearby places for $category at ${location.latitude},${location.longitude}")
+        Log.d("HomeFragment", "Fetching nearby places for $category")
 
         val client = OkHttpClient()
         val request = Request.Builder().url(url).build()
@@ -288,7 +299,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             override fun onFailure(call: Call, e: IOException) {
                 requireActivity().runOnUiThread {
                     Log.e("HomeFragment", "Failed to fetch nearby places: ${e.message}")
-                    Toast.makeText(requireContext(), "Failed to fetch places. Using cached data.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "Failed to fetch places. Using placeholder data.", Toast.LENGTH_SHORT).show()
                     // Fallback to fake data
                     val fakeItems = fakePlaceItems(category)
                     currentPlacesAdapter = SimplePlaceAdapter(fakeItems)
@@ -335,7 +346,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     private fun parseNearbyPlaces(results: JSONArray, category: String): List<PlaceItem> {
         val places = mutableListOf<PlaceItem>()
         
-        for (i in 0 until minOf(results.length(), 8)) { // Limit to 8 items
+        for (i in 0 until minOf(results.length(), MAX_PLACES_PER_CATEGORY)) {
             try {
                 val place = results.getJSONObject(i)
                 val name = place.optString("name", "Unknown Place")
@@ -382,7 +393,11 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         
         // Add vicinity/address (truncate if too long)
         if (vicinity.isNotEmpty()) {
-            val truncatedVicinity = if (vicinity.length > 40) vicinity.substring(0, 37) + "..." else vicinity
+            val truncatedVicinity = if (vicinity.length > VICINITY_MAX_LENGTH) {
+                vicinity.substring(0, VICINITY_TRUNCATE_LENGTH) + "..."
+            } else {
+                vicinity
+            }
             parts.add(truncatedVicinity)
         }
         
@@ -468,12 +483,10 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                     Log.d("HomeFragment", "Real-time location updated: ${location.latitude}, ${location.longitude}")
                     
                     // If this is the first location update, refresh recommendations with real data
-                    if (wasNull) {
-                        view?.findViewById<MaterialAutoCompleteTextView>(R.id.categoryDropdown)?.let { dropdown ->
-                            val currentCategory = dropdown.text.toString()
-                            view?.findViewById<RecyclerView>(R.id.recommendedRecyclerView)?.let { recyclerView ->
-                                fetchNearbyPlaces(currentCategory, recyclerView)
-                            }
+                    if (wasNull && categoryDropdownRef != null && recommendedRecyclerViewRef != null) {
+                        val currentCategory = categoryDropdownRef?.text.toString()
+                        if (currentCategory.isNotEmpty()) {
+                            fetchNearbyPlaces(currentCategory, recommendedRecyclerViewRef!!)
                         }
                     }
                     
