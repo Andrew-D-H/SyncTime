@@ -105,17 +105,18 @@ class MainActivity : AppCompatActivity() {
     fun setlanguage(view: View) {
         // set app locale given the user's selected locale
         val lang = AppCompatDelegate.getApplicationLocales()
-        if (lang.toLanguageTags().toString() == "en") {
+        val currentLang = lang.toLanguageTags().toString()
+        
+        // Toggle between English and Spanish
+        // Default to English if no locale is set or current locale is not en/es
+        if (currentLang == "es") {
             AppCompatDelegate.setApplicationLocales(
-                LocaleListCompat.forLanguageTags(
-                    "es" // ISO for Spanish
-                )
+                LocaleListCompat.forLanguageTags("en") // Switch to English
             )
-        } else if (lang.toLanguageTags().toString() == "es") {
+        } else {
+            // For "en", empty, or any other locale, switch to Spanish
             AppCompatDelegate.setApplicationLocales(
-                LocaleListCompat.forLanguageTags(
-                    "en" // ISO for English
-                )
+                LocaleListCompat.forLanguageTags("es") // Switch to Spanish
             )
         }
     }
