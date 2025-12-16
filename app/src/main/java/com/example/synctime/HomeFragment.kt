@@ -28,13 +28,11 @@ import com.google.android.gms.maps.model.PolylineOptions
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.AutocompletePrediction
 import com.google.android.libraries.places.api.model.AutocompleteSessionToken
-import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest
 import com.google.android.libraries.places.api.net.PlacesClient
 import okhttp3.*
 import org.json.JSONObject
 import java.io.IOException
-import android.widget.EditText
 
 class HomeFragment : Fragment(R.layout.fragment_home) {
 
@@ -44,10 +42,16 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     private var googleMap: GoogleMap? = null
     private lateinit var placesClient: PlacesClient
     private var lastLocation: LatLng? = null
+
     private val LOCATION_PERMISSION_REQUEST_CODE = 1001
     private val DIRECTIONS_API_KEY by lazy { getString(R.string.google_maps_key) }
 
     private lateinit var predictionsAdapter: PredictionsAdapter
+
+    data class PlaceItem(
+        val name: String,
+        val subtitle: String
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,12 +69,12 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
                 // Update the search bar
                 view?.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.search_bar)?.apply {
-                    setText(address) // Set the address in the search bar
-                    clearFocus() // Remove focus from the search bar
+                    setText(address)
+                    clearFocus()
                 }
 
-                // Render the route for the selected address
-                fetchAndRenderRoute(address)
+                // Start navigation (builds directions URL correctly)
+                startNavigation(address)
             }
         )
     }
@@ -80,7 +84,6 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
         // Reference the search bar (destination input field)
         val searchBar = view.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.search_bar)
-
         if (searchBar == null) {
             Log.e("HomeFragment", "search_bar is not found in the layout. Ensure it's defined in fragment_home.xml.")
             return
@@ -90,17 +93,11 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         val passedDestination = arguments?.getString("trip_destination")
         if (!passedDestination.isNullOrEmpty()) {
             Log.d("HomeFragment", "Passed destination: $passedDestination")
-
-            // Populate the input field for visual feedback
             searchBar.setText(passedDestination)
-
-            // Start navigation immediately
             startNavigation(passedDestination)
-        } else {
-            Log.e("HomeFragment", "No trip destination passed from OpenTripFragment.")
-            Toast.makeText(requireContext(), "No destination passed from trip selection.", Toast.LENGTH_SHORT).show()
         }
 
+        // Map init
         mapView = view.findViewById(R.id.mapView)
         mapView.onCreate(savedInstanceState)
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
@@ -110,25 +107,24 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             checkLocationPermission()
         }
 
-        // Navigate to TripFragment on "New com.example.synctime.Trip" button click
+        // New Trip button
         view.findViewById<View>(R.id.btn_new_trip).setOnClickListener {
             parentFragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, TripFragment())
-                .addToBackStack(null) // Allows the user to navigate back
-                .commit()
-        }
-
-        // Open com.example.synctime.Trip Button
-        view.findViewById<View>(R.id.btn_open_trip).setOnClickListener {
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, OpenTripFragment()) // Open a fragment that lists available trips
                 .addToBackStack(null)
                 .commit()
         }
 
+        // Open Trip button
+        view.findViewById<View>(R.id.btn_open_trip).setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, OpenTripFragment())
+                .addToBackStack(null)
+                .commit()
+        }
 
-        val predictionsRecyclerView = view.findViewById<RecyclerView>(R.id.placesRecyclerView)
-
+        // ─────────── Autocomplete Predictions RecyclerView ───────────
+        val predictionsRecyclerView = view.findViewById<RecyclerView>(R.id.predictionsRecyclerView)
         predictionsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         predictionsRecyclerView.adapter = predictionsAdapter
 
@@ -148,31 +144,148 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
             override fun afterTextChanged(s: Editable?) = Unit
         })
+
+        // ─────────── Recommended: category picker + single list ───────────
+        val recommendedRV = view.findViewById<RecyclerView>(R.id.recommendedRecyclerView)
+        recommendedRV.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
+        recommendedRV.isNestedScrollingEnabled = false
+
+        val categoryDropdown =
+            view.findViewById<com.google.android.material.textfield.MaterialAutoCompleteTextView>(R.id.categoryDropdown)
+
+        val categories = listOf(
+            "Restaurants",
+            "Gas Stations",
+            "Grocery Stores",
+            "Coffee Shops",
+            "Pharmacies",
+            "Superstores"
+        )
+
+        val dropdownAdapter = android.widget.ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_list_item_1,
+            categories
+        )
+        categoryDropdown.setAdapter(dropdownAdapter)
+
+        // Default selection
+        categoryDropdown.setText(categories[0], false)
+        recommendedRV.adapter = SimplePlaceAdapter(fakePlaceItems("Restaurant"))
+
+        categoryDropdown.setOnItemClickListener { _, _, position, _ ->
+            val selected = categories[position]
+            val key = when (selected) {
+                "Restaurants" -> "Restaurant"
+                "Gas Stations" -> "Gas Station"
+                "Grocery Stores" -> "Grocery Store"
+                "Coffee Shops" -> "Coffee Shop"
+                "Pharmacies" -> "Pharmacy"
+                "Superstores" -> "Superstore"
+                else -> "Restaurant"
+            }
+            recommendedRV.adapter = SimplePlaceAdapter(fakePlaceItems(key))
+        }
+    }
+
+    // 8 fake items per category with realistic subtitles
+    private fun fakePlaceItems(category: String): List<PlaceItem> {
+        val bases = listOf(
+            "Oak Plaza",
+            "Riverside Center",
+            "Pine & Main",
+            "Northside",
+            "Lakeside",
+            "Sunset Point",
+            "City Center",
+            "Grand Avenue"
+        )
+
+        val distances = listOf("0.4 mi", "0.7 mi", "1.1 mi", "1.6 mi", "2.0 mi", "2.4 mi", "3.1 mi", "3.8 mi")
+        val hours = listOf(
+            "Open until 9 PM",
+            "Open until 10 PM",
+            "Open until 11 PM",
+            "Open until 8 PM",
+            "Open 24/7",
+            "Open until 7 PM",
+            "Open until 6 PM",
+            "Open until 12 AM"
+        )
+        val ratings = listOf("4.7", "4.6", "4.5", "4.4", "4.8", "4.3", "4.6", "4.5")
+        val prices = listOf("$", "$$", "$$", "$$$", "$", "$$", "$$$", "$$")
+
+        return bases.mapIndexed { i, base ->
+            val title = when (category) {
+                "Restaurant" -> "$base Bistro"
+                "Gas Station" -> "$base Fuel"
+                "Grocery Store" -> "$base Market"
+                "Coffee Shop" -> "$base Coffee"
+                "Pharmacy" -> "$base Pharmacy"
+                "Superstore" -> "$base Superstore"
+                else -> "$base $category"
+            }
+
+            val subtitle = when (category) {
+                "Restaurant" ->
+                    "★${ratings[i]} • ${prices[i]} • ${distances[i]} • ${hours[i]}"
+                "Gas Station" ->
+                    "${distances[i]} • ${if (i % 2 == 0) "Open 24/7" else hours[i]} • ${if (i % 3 == 0) "Car wash" else "Snacks"}"
+                "Grocery Store" ->
+                    "${distances[i]} • ${hours[i]} • ${if (i % 2 == 0) "Pickup available" else "Delivery"}"
+                "Coffee Shop" ->
+                    "★${ratings[i]} • ${distances[i]} • ${if (i % 2 == 0) "Drive-thru" else "Wi-Fi"}"
+                "Pharmacy" ->
+                    "${distances[i]} • ${hours[i]} • ${if (i % 2 == 0) "Vaccines" else "Prescriptions"}"
+                "Superstore" ->
+                    "${distances[i]} • ${hours[i]} • ${if (i % 2 == 0) "Pickup" else "Returns"}"
+                else ->
+                    "${distances[i]} • ${hours[i]}"
+            }
+
+            PlaceItem(name = title, subtitle = subtitle)
+        }
+    }
+
+    private class SimplePlaceAdapter(
+        private val items: List<PlaceItem>
+    ) : RecyclerView.Adapter<SimplePlaceAdapter.PlaceVH>() {
+
+        class PlaceVH(itemView: View) : RecyclerView.ViewHolder(itemView) {
+            val title: TextView = itemView.findViewById(R.id.place_title)
+            val address: TextView = itemView.findViewById(R.id.place_address)
+        }
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlaceVH {
+            val v = LayoutInflater.from(parent.context).inflate(R.layout.item_place, parent, false)
+            return PlaceVH(v)
+        }
+
+        override fun onBindViewHolder(holder: PlaceVH, position: Int) {
+            val item = items[position]
+            holder.title.text = item.name
+            holder.address.text = item.subtitle
+        }
+
+        override fun getItemCount(): Int = items.size
     }
 
     private fun startNavigation(destinationAddress: String) {
-        val origin = lastLocation?.let {
-            "${it.latitude},${it.longitude}"
-        } ?: run {
-            // Wait for the location to be available before starting navigation
+        val origin = lastLocation?.let { "${it.latitude},${it.longitude}" } ?: run {
             Toast.makeText(requireContext(), "Current location not available. Please wait for GPS fix.", Toast.LENGTH_SHORT).show()
             Log.e("HomeFragment", "Cannot start navigation: lastLocation is null.")
             return
         }
 
-        // Log navigation start
         Log.d("HomeFragment", "Starting navigation from: $origin to: $destinationAddress")
 
-        // Build the Google Directions API URL
         val directionsApiUrl = "https://maps.googleapis.com/maps/api/directions/json" +
                 "?origin=$origin" +
                 "&destination=${Uri.encode(destinationAddress)}" +
                 "&key=${resources.getString(R.string.google_maps_key)}"
 
-        // Start fetching and rendering the route
         fetchAndRenderRoute(directionsApiUrl)
     }
-
 
     private fun checkLocationPermission() {
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
@@ -199,10 +312,10 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
     private fun startLocationUpdates() {
         val locationRequest = LocationRequest.create().apply {
-            interval = 5000L  // Request location updates every 5 seconds
-            fastestInterval = 2000L  // Receive updates as fast as every 2 seconds if other apps are using location
-            priority = Priority.PRIORITY_HIGH_ACCURACY  // Use GPS when available
-            smallestDisplacement = 0f  // Track even small movements
+            interval = 5000L
+            fastestInterval = 2000L
+            priority = Priority.PRIORITY_HIGH_ACCURACY
+            smallestDisplacement = 0f
         }
 
         locationCallback = object : LocationCallback() {
@@ -210,14 +323,11 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 locationResult.lastLocation?.let { location ->
                     lastLocation = LatLng(location.latitude, location.longitude)
                     Log.d("HomeFragment", "Real-time location updated: ${location.latitude}, ${location.longitude}")
-
-                    // Trigger route update on location change
                     onLocationUpdated()
                 }
             }
         }
 
-        // Ensure permissions are granted before requesting location updates
         if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) ==
             PackageManager.PERMISSION_GRANTED
         ) {
@@ -227,29 +337,21 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         }
     }
 
-
     private fun onLocationUpdated() {
-        // Ensure the origin (current location) is available
         val origin = lastLocation?.let { "${it.latitude},${it.longitude}" } ?: run {
             Log.e("HomeFragment", "Cannot refresh route: Current location (origin) not available.")
             return
         }
 
-        // Retrieve the destination (trip_destination)
-        val destination = arguments?.getString("trip_destination") ?: run {
-            Log.e("HomeFragment", "Cannot refresh route: Destination is not specified.")
-            return
-        }
+        val destination = arguments?.getString("trip_destination") ?: return
 
         Log.d("HomeFragment", "Refreshing route from: $origin to: $destination")
 
-        // Build the Directions API URL
         val directionsApiUrl = "https://maps.googleapis.com/maps/api/directions/json" +
                 "?origin=$origin" +
                 "&destination=${Uri.encode(destination)}" +
                 "&key=${resources.getString(R.string.google_maps_key)}"
 
-        // Fetch and render the updated route
         fetchAndRenderRoute(directionsApiUrl)
     }
 
@@ -265,10 +367,10 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 val predictions = response.autocompletePredictions
                 if (predictions.isNotEmpty()) {
                     predictionsAdapter.updatePredictions(predictions)
-                    view?.findViewById<RecyclerView>(R.id.placesRecyclerView)?.visibility = View.VISIBLE
+                    view?.findViewById<RecyclerView>(R.id.predictionsRecyclerView)?.visibility = View.VISIBLE
                 } else {
                     predictionsAdapter.updatePredictions(emptyList())
-                    view?.findViewById<RecyclerView>(R.id.placesRecyclerView)?.visibility = View.GONE
+                    view?.findViewById<RecyclerView>(R.id.predictionsRecyclerView)?.visibility = View.GONE
                 }
             }
             .addOnFailureListener { error ->
@@ -305,14 +407,11 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                     .getJSONObject("overview_polyline")
                     .getString("points")
 
-                // Decode the polyline points
                 val routePoints = decodePoly(overviewPolyline)
 
                 requireActivity().runOnUiThread {
-                    // Clear previous map route
                     googleMap?.clear()
 
-                    // Draw the new route on the map
                     googleMap?.addPolyline(
                         PolylineOptions()
                             .addAll(routePoints)
@@ -320,7 +419,6 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                             .width(10f)
                     )
 
-                    // Move the camera to the updated location/route
                     if (routePoints.isNotEmpty()) {
                         googleMap?.animateCamera(CameraUpdateFactory.newLatLngZoom(routePoints[0], 15f))
                     }
@@ -385,19 +483,14 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         override fun onBindViewHolder(holder: PredictionViewHolder, position: Int) {
             val prediction = predictions[position]
 
-            // Bind primary and secondary text to TextViews
             val primaryText = prediction.getPrimaryText(null).toString()
             val secondaryText = prediction.getSecondaryText(null)?.toString() ?: ""
 
             holder.predictionText.text = primaryText
             holder.secondaryPredictionText.text = secondaryText
 
-            // Handle item clicks
             holder.itemView.setOnClickListener {
-                // Update the search bar with the selected address
                 onPredictionSelected(prediction)
-
-                // Hide the predictions list from the RecyclerView
                 (holder.itemView.parent as? RecyclerView)?.visibility = View.GONE
             }
         }
