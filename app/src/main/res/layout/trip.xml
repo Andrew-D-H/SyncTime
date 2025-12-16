@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    android:background="#FFFFFF"> <!-- Static White Background -->
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Trip Name Input Field -->
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/trip_name_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter trip name"
+            android:padding="12dp"
+            android:textColor="#000000"
+        android:backgroundTint="#CCCCCC"
+        android:layout_marginBottom="16dp" />
+
+        <!-- Trip Destination Input Field -->
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/trip_destination_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter destination"
+            android:padding="12dp"
+            android:textColor="#000000"
+            android:backgroundTint="#CCCCCC"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Predictions RecyclerView -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/predictionsRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone" />
+
+        <!-- Section Header for Friends List -->
+        <TextView
+            android:id="@+id/friends_list_section"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Invite Friends"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="#000000"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="8dp" />
+
+        <!-- Friends List RecyclerView -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/friends_list_recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:scrollbars="vertical"
+            android:background="#F0F0F0"
+            android:backgroundTint="#6200EE"
+            android:padding="8dp"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Create Trip Button -->
+        <Button
+            android:id="@+id/btn_create_trip"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Create Trip"
+            android:textAllCaps="false"
+            android:padding="16dp"
+            android:backgroundTint="#6200EE"
+        android:textColor="#FFFFFF"
+        android:textStyle="bold"
+        android:layout_marginTop="16dp" />
+
+    </LinearLayout>
+</ScrollView>

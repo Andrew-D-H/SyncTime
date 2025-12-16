@@ -5,6 +5,7 @@
     <string name="new_trip">New Trip</string>
     <string name="chat_info">Chat Info</string>
     <string name="places_near_you">Places Near You</string>
+    <string name="google_maps_key">AIzaSyCTQk1-8I3t-qhqAAgVWoj5up67GMw5Fls</string>
     <string name="google_maps_key">AIzaSyB53M_pierhCOdkxgXjyjcxHMLrpl4JQsM</string>
     <string name="tagline">Plan Smarter,\nArrive Together.</string>
     <string name="groups">GROUPS</string>

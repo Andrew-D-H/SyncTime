@@ -1,26 +1,21 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="64dp"
+    android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:gravity="center_vertical"
-    android:padding="12dp"
-    android:background="@android:color/white"
-    android:layout_marginBottom="8dp"
-    android:elevation="2dp"
-    android:clipToOutline="true">
+    android:padding="8dp">
 
-    <!-- Profile Image -->
+    <!-- Friend Profile Image -->
     <ImageView
         android:id="@+id/ivFriendProfile"
         android:layout_width="48dp"
         android:layout_height="48dp"
-        android:src="@drawable/baseline_account_circle_24"
-        android:contentDescription="Friend profile"
-        android:scaleType="centerCrop"
-        android:layout_marginEnd="12dp" />
+        android:src="@android:drawable/ic_menu_gallery"
+        android:contentDescription="Friend Profile"
+        android:layout_marginEnd="8dp" />
 
-    <!-- Name + Status -->
+    <!-- Friend Details -->
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -33,69 +28,31 @@
             android:layout_height="wrap_content"
             android:text="Friend Name"
             android:textSize="16sp"
-            android:textColor="#333333"
             android:textStyle="bold" />
 
         <TextView
             android:id="@+id/tvFriendStatus"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Online"
+            android:text="Offline"
             android:textSize="14sp"
-            android:textColor="#6E43FF" />
+            android:textColor="@android:color/darker_gray" />
     </LinearLayout>
 
-    <!-- Action Buttons -->
-    <LinearLayout
-        android:id="@+id/actionButtonsContainer"
+    <!-- Friend Selection Checkbox -->
+    <CheckBox
+        android:id="@+id/friend_checkbox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:layout_gravity="center" />
 
-        <!-- Chat Button -->
-        <ImageButton
-            android:id="@+id/btnChatFriend"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:src="@drawable/baseline_chat_24"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            app:tint="#6E43FF"
-            android:layout_marginEnd="8dp"/>
-
-        <!-- Remove Friend Button -->
-        <ImageButton
-            android:id="@+id/btnRemoveFriend"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:src="@drawable/baseline_person_remove_24"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            app:tint="#FF4C4C"
-            android:visibility="visible" />
-    </LinearLayout>
-
-    <!-- Pending Buttons -->
-    <LinearLayout
-        android:id="@+id/pendingButtonsContainer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:visibility="visible">
-
-        <ImageButton
-            android:id="@+id/btnAcceptRequest"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:src="@drawable/baseline_check_24"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            app:tint="#6E43FF"
-            android:layout_marginEnd="8dp" />
-
-        <ImageButton
-            android:id="@+id/btnDeclineRequest"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:src="@drawable/baseline_close_24"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            app:tint="#999999" />
-    </LinearLayout>
+    <!-- Remove Friend Button -->
+    <ImageButton
+        android:id="@+id/btnRemoveFriend"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@android:drawable/ic_menu_delete"
+        android:contentDescription="Remove Friend"
+        android:layout_marginStart="8dp"
+        android:background="?selectableItemBackgroundBorderless" />
 </LinearLayout>

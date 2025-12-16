@@ -31,7 +31,7 @@ class AddFragment : Fragment(R.layout.fragment_add) {
             } else {
                 Toast.makeText(
                     requireContext(),
-                    "Trip Created:\n$tripName → $destination\n$date at $time",
+                    "com.example.synctime.Trip Created:\n$tripName → $destination\n$date at $time",
                     Toast.LENGTH_LONG
                 ).show()
 
