@@ -14,7 +14,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
-import android.widget.ArrayAdapter
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -32,12 +31,11 @@ import com.google.android.libraries.places.api.model.AutocompleteSessionToken
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest
 import com.google.android.libraries.places.api.net.PlacesClient
-import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import okhttp3.*
 import org.json.JSONObject
-import org.json.JSONArray
 import java.io.IOException
 import android.widget.EditText
+import android.widget.RadioButton
 
 class HomeFragment : Fragment(R.layout.fragment_home) {
 
@@ -49,24 +47,8 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     private var lastLocation: LatLng? = null
     private val LOCATION_PERMISSION_REQUEST_CODE = 1001
     private val DIRECTIONS_API_KEY by lazy { getString(R.string.google_maps_key) }
-
+    private var travelModeChar: Char = 'd'
     private lateinit var predictionsAdapter: PredictionsAdapter
-    private var currentPlacesAdapter: SimplePlaceAdapter? = null
-    
-    // Recommendation system constants
-    private val NEARBY_SEARCH_RADIUS = 5000 // meters
-    private val MAX_PLACES_PER_CATEGORY = 8
-    private val VICINITY_MAX_LENGTH = 40
-    private val VICINITY_TRUNCATE_LENGTH = 37
-    
-    // Cache for UI elements
-    private var categoryDropdownRef: MaterialAutoCompleteTextView? = null
-    private var recommendedRecyclerViewRef: RecyclerView? = null
-
-    data class PlaceItem(
-        val name: String,
-        val subtitle: String
-    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -84,12 +66,12 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
                 // Update the search bar
                 view?.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.search_bar)?.apply {
-                    setText(address)
-                    clearFocus()
+                    setText(address) // Set the address in the search bar
+                    clearFocus() // Remove focus from the search bar
                 }
 
-                // Start navigation (builds directions URL correctly)
-                startNavigation(address)
+                // Render the route for the selected address
+                fetchAndRenderRoute(address)
             }
         )
     }
@@ -99,20 +81,41 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
         // Reference the search bar (destination input field)
         val searchBar = view.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.search_bar)
+
         if (searchBar == null) {
             Log.e("HomeFragment", "search_bar is not found in the layout. Ensure it's defined in fragment_home.xml.")
             return
         }
 
+        //Set travel mode based on selected button
+        view.findViewById<RadioButton>(R.id.radioButtonDrive).setOnClickListener { buttonView, ->
+            Toast.makeText(requireContext(), "Travel Mode set to Driving", Toast.LENGTH_SHORT).show()
+            travelModeChar = 'd'
+        }
+
+        view.findViewById<RadioButton>(R.id.radioButtonTransit).setOnClickListener{ buttonView, ->
+            Toast.makeText(requireContext(), "Travel Mode set to Public Transit", Toast.LENGTH_SHORT).show()
+            travelModeChar = 't'
+        }
+        view.findViewById<RadioButton>(R.id.radioButtonWalk).setOnClickListener { buttonView ->
+            Toast.makeText(requireContext(), "Travel Mode set to Walking", Toast.LENGTH_SHORT).show()
+            travelModeChar = 'w'
+        }
         // Check if a destination was passed via arguments
         val passedDestination = arguments?.getString("trip_destination")
         if (!passedDestination.isNullOrEmpty()) {
             Log.d("HomeFragment", "Passed destination: $passedDestination")
+
+            // Populate the input field for visual feedback
             searchBar.setText(passedDestination)
+
+            // Start navigation immediately
             startNavigation(passedDestination)
+        } else {
+            Log.e("HomeFragment", "No trip destination passed from OpenTripFragment.")
+            Toast.makeText(requireContext(), "No destination passed from trip selection.", Toast.LENGTH_SHORT).show()
         }
 
-        // Map init
         mapView = view.findViewById(R.id.mapView)
         mapView.onCreate(savedInstanceState)
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
@@ -122,24 +125,24 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             checkLocationPermission()
         }
 
-        // New Trip button
+        // Navigate to TripFragment on "New com.example.synctime.Trip" button click
         view.findViewById<View>(R.id.btn_new_trip).setOnClickListener {
             parentFragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, TripFragment())
-                .addToBackStack(null)
+                .addToBackStack(null) // Allows the user to navigate back
                 .commit()
         }
 
-        // Open Trip button
+        // Open com.example.synctime.Trip Button
         view.findViewById<View>(R.id.btn_open_trip).setOnClickListener {
             parentFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, OpenTripFragment())
+                .replace(R.id.fragment_container, OpenTripFragment()) // Open a fragment that lists available trips
                 .addToBackStack(null)
                 .commit()
         }
 
-        // ─────────── Autocomplete Predictions RecyclerView ───────────
-        val predictionsRecyclerView = view.findViewById<RecyclerView>(R.id.predictionsRecyclerView)
+
+        val predictionsRecyclerView = view.findViewById<RecyclerView>(R.id.placesRecyclerView)
 
         predictionsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         predictionsRecyclerView.adapter = predictionsAdapter
@@ -160,289 +163,32 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
             override fun afterTextChanged(s: Editable?) = Unit
         })
-
-        // ─────────── Recommendation System Setup ───────────
-        setupRecommendationSystem(view)
-    }
-
-    // 8 fake items per category with realistic subtitles
-    private fun fakePlaceItems(category: String): List<PlaceItem> {
-        val bases = listOf(
-            "Oak Plaza",
-            "Riverside Center",
-            "Pine & Main",
-            "Northside",
-            "Lakeside",
-            "Sunset Point",
-            "City Center",
-            "Grand Avenue"
-        )
-
-        val distances = listOf("0.4 mi", "0.7 mi", "1.1 mi", "1.6 mi", "2.0 mi", "2.4 mi", "3.1 mi", "3.8 mi")
-        val hours = listOf(
-            "Open until 9 PM",
-            "Open until 10 PM",
-            "Open until 11 PM",
-            "Open until 8 PM",
-            "Open 24/7",
-            "Open until 7 PM",
-            "Open until 6 PM",
-            "Open until 12 AM"
-        )
-        val ratings = listOf("4.7", "4.6", "4.5", "4.4", "4.8", "4.3", "4.6", "4.5")
-        val prices = listOf("$", "$$", "$$", "$$$", "$", "$$", "$$$", "$$")
-
-        return bases.mapIndexed { i, base ->
-            val title = when (category) {
-                "Restaurant" -> "$base Bistro"
-                "Gas Station" -> "$base Fuel"
-                "Grocery Store" -> "$base Market"
-                "Coffee Shop" -> "$base Coffee"
-                "Pharmacy" -> "$base Pharmacy"
-                "Superstore" -> "$base Superstore"
-                else -> "$base $category"
-            }
-
-            val subtitle = when (category) {
-                "Restaurant" ->
-                    "★${ratings[i]} • ${prices[i]} • ${distances[i]} • ${hours[i]}"
-                "Gas Station" ->
-                    "${distances[i]} • ${if (i % 2 == 0) "Open 24/7" else hours[i]} • ${if (i % 3 == 0) "Car wash" else "Snacks"}"
-                "Grocery Store" ->
-                    "${distances[i]} • ${hours[i]} • ${if (i % 2 == 0) "Pickup available" else "Delivery"}"
-                "Coffee Shop" ->
-                    "★${ratings[i]} • ${distances[i]} • ${if (i % 2 == 0) "Drive-thru" else "Wi-Fi"}"
-                "Pharmacy" ->
-                    "${distances[i]} • ${hours[i]} • ${if (i % 2 == 0) "Vaccines" else "Prescriptions"}"
-                "Superstore" ->
-                    "${distances[i]} • ${hours[i]} • ${if (i % 2 == 0) "Pickup" else "Returns"}"
-                else ->
-                    "${distances[i]} • ${hours[i]}"
-            }
-
-            PlaceItem(name = title, subtitle = subtitle)
-        }
-    }
-
-    private fun setupRecommendationSystem(view: View) {
-        val categoryDropdown = view.findViewById<MaterialAutoCompleteTextView>(R.id.categoryDropdown)
-        val recommendedRecyclerView = view.findViewById<RecyclerView>(R.id.recommendedRecyclerView)
-        
-        // Cache view references for later use
-        categoryDropdownRef = categoryDropdown
-        recommendedRecyclerViewRef = recommendedRecyclerView
-
-        // Set up RecyclerView
-        recommendedRecyclerView.layoutManager = LinearLayoutManager(requireContext())
-
-        // Define categories
-        val categories = listOf(
-            "Restaurant",
-            "Gas Station",
-            "Grocery Store",
-            "Coffee Shop",
-            "Pharmacy",
-            "Superstore"
-        )
-
-        // Set up category dropdown
-        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, categories)
-        categoryDropdown.setAdapter(adapter)
-
-        // Set default selection to "Restaurant"
-        categoryDropdown.setText("Restaurant", false)
-        
-        // Fetch initial data for Restaurant
-        fetchNearbyPlaces("Restaurant", recommendedRecyclerView)
-
-        // Handle category selection
-        categoryDropdown.setOnItemClickListener { _, _, position, _ ->
-            val selectedCategory = categories[position]
-            fetchNearbyPlaces(selectedCategory, recommendedRecyclerView)
-        }
-    }
-
-    private fun fetchNearbyPlaces(category: String, recyclerView: RecyclerView) {
-        val location = lastLocation
-        if (location == null) {
-            Log.w("HomeFragment", "Location not available yet. Using fake data for $category")
-            // Use fake data as fallback
-            val fakeItems = fakePlaceItems(category)
-            currentPlacesAdapter = SimplePlaceAdapter(fakeItems)
-            recyclerView.adapter = currentPlacesAdapter
-            return
-        }
-
-        // Map category to Google Places API type
-        val placeType = when (category) {
-            "Restaurant" -> "restaurant"
-            "Gas Station" -> "gas_station"
-            "Grocery Store" -> "grocery_or_supermarket"
-            "Coffee Shop" -> "cafe"
-            "Pharmacy" -> "pharmacy"
-            "Superstore" -> "supermarket"
-            else -> "restaurant"
-        }
-
-        val url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json" +
-                "?location=${location.latitude},${location.longitude}" +
-                "&radius=$NEARBY_SEARCH_RADIUS" +
-                "&type=$placeType" +
-                "&key=$DIRECTIONS_API_KEY"
-
-        Log.d("HomeFragment", "Fetching nearby places for $category")
-
-        val client = OkHttpClient()
-        val request = Request.Builder().url(url).build()
-
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                requireActivity().runOnUiThread {
-                    Log.e("HomeFragment", "Failed to fetch nearby places: ${e.message}")
-                    Toast.makeText(requireContext(), "Failed to fetch places. Using placeholder data.", Toast.LENGTH_SHORT).show()
-                    // Fallback to fake data
-                    val fakeItems = fakePlaceItems(category)
-                    currentPlacesAdapter = SimplePlaceAdapter(fakeItems)
-                    recyclerView.adapter = currentPlacesAdapter
-                }
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-                val body = response.body?.string() ?: ""
-                
-                try {
-                    val json = JSONObject(body)
-                    val results = json.optJSONArray("results")
-                    
-                    if (results == null || results.length() == 0) {
-                        requireActivity().runOnUiThread {
-                            Log.w("HomeFragment", "No places found for $category. Using fake data.")
-                            val fakeItems = fakePlaceItems(category)
-                            currentPlacesAdapter = SimplePlaceAdapter(fakeItems)
-                            recyclerView.adapter = currentPlacesAdapter
-                        }
-                        return
-                    }
-
-                    val places = parseNearbyPlaces(results, category)
-                    
-                    requireActivity().runOnUiThread {
-                        Log.d("HomeFragment", "Found ${places.size} places for $category")
-                        currentPlacesAdapter = SimplePlaceAdapter(places)
-                        recyclerView.adapter = currentPlacesAdapter
-                    }
-                } catch (e: Exception) {
-                    requireActivity().runOnUiThread {
-                        Log.e("HomeFragment", "Error parsing places: ${e.message}")
-                        val fakeItems = fakePlaceItems(category)
-                        currentPlacesAdapter = SimplePlaceAdapter(fakeItems)
-                        recyclerView.adapter = currentPlacesAdapter
-                    }
-                }
-            }
-        })
-    }
-
-    private fun parseNearbyPlaces(results: JSONArray, category: String): List<PlaceItem> {
-        val places = mutableListOf<PlaceItem>()
-        
-        for (i in 0 until minOf(results.length(), MAX_PLACES_PER_CATEGORY)) {
-            try {
-                val place = results.getJSONObject(i)
-                val name = place.optString("name", "Unknown Place")
-                val vicinity = place.optString("vicinity", "")
-                
-                // Get additional details
-                val rating = place.optDouble("rating", 0.0)
-                val isOpen = place.optJSONObject("opening_hours")?.optBoolean("open_now", false) ?: false
-                val priceLevel = place.optInt("price_level", 0)
-                
-                // Build subtitle based on category
-                val subtitle = buildPlaceSubtitle(category, rating, isOpen, priceLevel, vicinity)
-                
-                places.add(PlaceItem(name = name, subtitle = subtitle))
-            } catch (e: Exception) {
-                Log.e("HomeFragment", "Error parsing place at index $i: ${e.message}")
-            }
-        }
-        
-        return places
-    }
-
-    private fun buildPlaceSubtitle(
-        category: String,
-        rating: Double,
-        isOpen: Boolean,
-        priceLevel: Int,
-        vicinity: String
-    ): String {
-        val parts = mutableListOf<String>()
-        
-        // Add rating if available
-        if (rating > 0) {
-            parts.add("★${String.format("%.1f", rating)}")
-        }
-        
-        // Add price level for restaurants
-        if (category == "Restaurant" && priceLevel > 0) {
-            parts.add("$".repeat(priceLevel))
-        }
-        
-        // Add open status
-        parts.add(if (isOpen) "Open now" else "Closed")
-        
-        // Add vicinity/address (truncate if too long)
-        if (vicinity.isNotEmpty()) {
-            val truncatedVicinity = if (vicinity.length > VICINITY_MAX_LENGTH) {
-                vicinity.substring(0, VICINITY_TRUNCATE_LENGTH) + "..."
-            } else {
-                vicinity
-            }
-            parts.add(truncatedVicinity)
-        }
-        
-        return parts.joinToString(" • ")
-    }
-
-    private class SimplePlaceAdapter(
-        private val items: List<PlaceItem>
-    ) : RecyclerView.Adapter<SimplePlaceAdapter.PlaceVH>() {
-
-        class PlaceVH(itemView: View) : RecyclerView.ViewHolder(itemView) {
-            val title: TextView = itemView.findViewById(R.id.place_title)
-            val address: TextView = itemView.findViewById(R.id.place_address)
-        }
-
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlaceVH {
-            val v = LayoutInflater.from(parent.context).inflate(R.layout.item_place, parent, false)
-            return PlaceVH(v)
-        }
-
-        override fun onBindViewHolder(holder: PlaceVH, position: Int) {
-            val item = items[position]
-            holder.title.text = item.name
-            holder.address.text = item.subtitle
-        }
-
-        override fun getItemCount(): Int = items.size
     }
 
     private fun startNavigation(destinationAddress: String) {
-        val origin = lastLocation?.let { "${it.latitude},${it.longitude}" } ?: run {
+        val origin = lastLocation?.let {
+            "${it.latitude},${it.longitude}"
+        } ?: run {
+            // Wait for the location to be available before starting navigation
             Toast.makeText(requireContext(), "Current location not available. Please wait for GPS fix.", Toast.LENGTH_SHORT).show()
             Log.e("HomeFragment", "Cannot start navigation: lastLocation is null.")
             return
         }
 
+        // Log navigation start
         Log.d("HomeFragment", "Starting navigation from: $origin to: $destinationAddress")
 
+        // Build the Google Directions API URL
         val directionsApiUrl = "https://maps.googleapis.com/maps/api/directions/json" +
                 "?origin=$origin" +
                 "&destination=${Uri.encode(destinationAddress)}" +
+                "&" + travelModeChar +
                 "&key=${resources.getString(R.string.google_maps_key)}"
 
+        // Start fetching and rendering the route
         fetchAndRenderRoute(directionsApiUrl)
     }
+
 
     private fun checkLocationPermission() {
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
@@ -469,32 +215,25 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
     private fun startLocationUpdates() {
         val locationRequest = LocationRequest.create().apply {
-            interval = 5000L
-            fastestInterval = 2000L
-            priority = Priority.PRIORITY_HIGH_ACCURACY
-            smallestDisplacement = 0f
+            interval = 5000L  // Request location updates every 5 seconds
+            fastestInterval = 2000L  // Receive updates as fast as every 2 seconds if other apps are using location
+            priority = Priority.PRIORITY_HIGH_ACCURACY  // Use GPS when available
+            smallestDisplacement = 0f  // Track even small movements
         }
 
         locationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult) {
                 locationResult.lastLocation?.let { location ->
-                    val wasNull = lastLocation == null
                     lastLocation = LatLng(location.latitude, location.longitude)
                     Log.d("HomeFragment", "Real-time location updated: ${location.latitude}, ${location.longitude}")
-                    
-                    // If this is the first location update, refresh recommendations with real data
-                    if (wasNull && categoryDropdownRef != null && recommendedRecyclerViewRef != null) {
-                        val currentCategory = categoryDropdownRef?.text.toString()
-                        if (currentCategory.isNotEmpty()) {
-                            fetchNearbyPlaces(currentCategory, recommendedRecyclerViewRef!!)
-                        }
-                    }
-                    
+
+                    // Trigger route update on location change
                     onLocationUpdated()
                 }
             }
         }
 
+        // Ensure permissions are granted before requesting location updates
         if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) ==
             PackageManager.PERMISSION_GRANTED
         ) {
@@ -504,21 +243,29 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         }
     }
 
+
     private fun onLocationUpdated() {
+        // Ensure the origin (current location) is available
         val origin = lastLocation?.let { "${it.latitude},${it.longitude}" } ?: run {
             Log.e("HomeFragment", "Cannot refresh route: Current location (origin) not available.")
             return
         }
 
-        val destination = arguments?.getString("trip_destination") ?: return
+        // Retrieve the destination (trip_destination)
+        val destination = arguments?.getString("trip_destination") ?: run {
+            Log.e("HomeFragment", "Cannot refresh route: Destination is not specified.")
+            return
+        }
 
         Log.d("HomeFragment", "Refreshing route from: $origin to: $destination")
 
+        // Build the Directions API URL
         val directionsApiUrl = "https://maps.googleapis.com/maps/api/directions/json" +
                 "?origin=$origin" +
                 "&destination=${Uri.encode(destination)}" +
                 "&key=${resources.getString(R.string.google_maps_key)}"
 
+        // Fetch and render the updated route
         fetchAndRenderRoute(directionsApiUrl)
     }
 
@@ -534,10 +281,10 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 val predictions = response.autocompletePredictions
                 if (predictions.isNotEmpty()) {
                     predictionsAdapter.updatePredictions(predictions)
-                    view?.findViewById<RecyclerView>(R.id.predictionsRecyclerView)?.visibility = View.VISIBLE
+                    view?.findViewById<RecyclerView>(R.id.placesRecyclerView)?.visibility = View.VISIBLE
                 } else {
                     predictionsAdapter.updatePredictions(emptyList())
-                    view?.findViewById<RecyclerView>(R.id.predictionsRecyclerView)?.visibility = View.GONE
+                    view?.findViewById<RecyclerView>(R.id.placesRecyclerView)?.visibility = View.GONE
                 }
             }
             .addOnFailureListener { error ->
@@ -574,12 +321,14 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                     .getJSONObject("overview_polyline")
                     .getString("points")
 
+                // Decode the polyline points
                 val routePoints = decodePoly(overviewPolyline)
 
                 requireActivity().runOnUiThread {
                     // Clear previous map route
                     googleMap?.clear()
 
+                    // Draw the new route on the map
                     googleMap?.addPolyline(
                         PolylineOptions()
                             .addAll(routePoints)
@@ -587,6 +336,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                             .width(10f)
                     )
 
+                    // Move the camera to the updated location/route
                     if (routePoints.isNotEmpty()) {
                         googleMap?.animateCamera(CameraUpdateFactory.newLatLngZoom(routePoints[0], 15f))
                     }
@@ -651,14 +401,19 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         override fun onBindViewHolder(holder: PredictionViewHolder, position: Int) {
             val prediction = predictions[position]
 
+            // Bind primary and secondary text to TextViews
             val primaryText = prediction.getPrimaryText(null).toString()
             val secondaryText = prediction.getSecondaryText(null)?.toString() ?: ""
 
             holder.predictionText.text = primaryText
             holder.secondaryPredictionText.text = secondaryText
 
+            // Handle item clicks
             holder.itemView.setOnClickListener {
+                // Update the search bar with the selected address
                 onPredictionSelected(prediction)
+
+                // Hide the predictions list from the RecyclerView
                 (holder.itemView.parent as? RecyclerView)?.visibility = View.GONE
             }
         }
