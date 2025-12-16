@@ -1,7 +1,8 @@
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/action_chat_info"
         android:title="@string/chat_info"
         android:icon="@drawable/ic_more_vert"
-        android:showAsAction="ifRoom" />
+        app:showAsAction="ifRoom" />
 </menu>
