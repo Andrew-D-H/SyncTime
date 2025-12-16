@@ -4,5 +4,8 @@
     <string name="chat">Chat</string>
     <string name="new_trip">New Trip</string>
     <string name="places_near_you">Places Near You</string>
+    <string name="transit">Bus</string>
+    <string name="driving">Drive</string>
+    <string name="walking">Walk</string>
     <string name="google_maps_key">AIzaSyCTQk1-8I3t-qhqAAgVWoj5up67GMw5Fls</string>
 </resources>

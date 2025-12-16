@@ -99,6 +99,44 @@
                 app:layout_constraintBottom_toTopOf="@id/btn_chat"
                 app:layout_constraintEnd_toEndOf="parent"
                 android:layout_marginBottom="12dp"/>
+            <RadioGroup
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent">
+            <RadioButton
+                android:id="@+id/radioButtonDrive"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                android:checked="true"
+                android:layout_width="90dp"
+                android:layout_height="48dp"
+                android:text="@string/driving"
+                android:drawableLeft="@drawable/google_maps_car_icon"
+
+                />
+
+            <RadioButton
+                android:id="@+id/radioButtonTransit"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toRightOf="@+id/radioButtonDrive"
+                android:layout_width="90dp"
+                android:layout_height="48dp"
+                android:text="@string/transit"
+                android:drawableLeft="@drawable/google_maps_bus_icon"
+                />
+
+            <RadioButton
+                android:id="@+id/radioButtonWalk"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toRightOf="@+id/radioButtonTransit"
+                android:layout_width="90dp"
+                android:layout_height="48dp"
+                android:text="@string/walking"
+                android:drawableLeft="@drawable/google_maps_walking_icon"
+                />
+            </RadioGroup>
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <!-- Places Header -->

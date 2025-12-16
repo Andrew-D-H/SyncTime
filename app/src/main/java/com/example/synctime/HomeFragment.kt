@@ -35,6 +35,7 @@ import okhttp3.*
 import org.json.JSONObject
 import java.io.IOException
 import android.widget.EditText
+import android.widget.RadioButton
 
 class HomeFragment : Fragment(R.layout.fragment_home) {
 
@@ -46,7 +47,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     private var lastLocation: LatLng? = null
     private val LOCATION_PERMISSION_REQUEST_CODE = 1001
     private val DIRECTIONS_API_KEY by lazy { getString(R.string.google_maps_key) }
-
+    private var travelModeChar: Char = 'd'
     private lateinit var predictionsAdapter: PredictionsAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -86,6 +87,20 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             return
         }
 
+        //Set travel mode based on selected button
+        view.findViewById<RadioButton>(R.id.radioButtonDrive).setOnClickListener { buttonView, ->
+            Toast.makeText(requireContext(), "Travel Mode set to Driving", Toast.LENGTH_SHORT).show()
+            travelModeChar = 'd'
+        }
+
+        view.findViewById<RadioButton>(R.id.radioButtonTransit).setOnClickListener{ buttonView, ->
+            Toast.makeText(requireContext(), "Travel Mode set to Public Transit", Toast.LENGTH_SHORT).show()
+            travelModeChar = 't'
+        }
+        view.findViewById<RadioButton>(R.id.radioButtonWalk).setOnClickListener { buttonView ->
+            Toast.makeText(requireContext(), "Travel Mode set to Walking", Toast.LENGTH_SHORT).show()
+            travelModeChar = 'w'
+        }
         // Check if a destination was passed via arguments
         val passedDestination = arguments?.getString("trip_destination")
         if (!passedDestination.isNullOrEmpty()) {
@@ -167,6 +182,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         val directionsApiUrl = "https://maps.googleapis.com/maps/api/directions/json" +
                 "?origin=$origin" +
                 "&destination=${Uri.encode(destinationAddress)}" +
+                "&" + travelModeChar +
                 "&key=${resources.getString(R.string.google_maps_key)}"
 
         // Start fetching and rendering the route
