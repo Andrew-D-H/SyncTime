@@ -156,40 +156,13 @@
                         app:thumbTint="@android:color/white"
                         app:trackTint="@color/purple_500" />
                 </LinearLayout>
-
-                <!-- Language -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:paddingHorizontal="16dp"
-                    android:paddingVertical="12dp">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="@string/language"
-                        android:textSize="16sp"
-                        android:textColor="@android:color/white" />
-
-                    <com.google.android.material.switchmaterial.SwitchMaterial
-                        android:id="@+id/switch_language"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:checked="false"
-                        app:thumbTint="@android:color/white"
-                        app:trackTint="@color/purple_500"
-                        android:onClick="setlanguage"/>
-                </LinearLayout>
             </LinearLayout>
 
             <!-- More Section -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/more"
+                android:text="More"
                 android:textSize="14sp"
                 android:textColor="@android:color/darker_gray"
                 android:textStyle="bold"
@@ -207,7 +180,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="16dp"
-                    android:text="@string/about_us"
+                    android:text="About us"
                     android:textSize="16sp"
                     android:textColor="@android:color/white" />
 
@@ -216,7 +189,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="16dp"
-                    android:text="@string/privacy_policy"
+                    android:text="Privacy policy"
                     android:textSize="16sp"
                     android:textColor="@android:color/white" />
             </LinearLayout>
