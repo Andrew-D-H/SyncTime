@@ -135,8 +135,8 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
                     android:orientation="horizontal"
+                    android:gravity="center_vertical"
                     android:paddingHorizontal="16dp"
                     android:paddingVertical="12dp">
 
@@ -145,20 +145,19 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="@string/dark_mode"
-                        android:textColor="@android:color/white"
-                        android:textSize="16sp" />
+                        android:textSize="16sp"
+                        android:textColor="@android:color/white" />
 
                     <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/dark_mode_switch"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:checked="true"
                         app:thumbTint="@android:color/white"
-                        app:trackTint="@color/purple_500"
-                        android:onClick="switchdarkmode"/>
-
-
+                        app:trackTint="@color/purple_500" />
                 </LinearLayout>
 
+                <!-- Language -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -176,12 +175,10 @@
                         android:textColor="@android:color/white" />
 
                     <com.google.android.material.switchmaterial.SwitchMaterial
-                        android:id="@+id/dark_mode_switch"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:checked="false"
                         app:thumbTint="@android:color/white"
-                        app:trackTint="@color/purple_500" />
                         app:trackTint="@color/purple_500"
                         android:onClick="setlanguage"/>
                 </LinearLayout>
