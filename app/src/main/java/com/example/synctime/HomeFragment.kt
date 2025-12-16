@@ -14,6 +14,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
+import android.widget.ArrayAdapter
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -31,8 +32,10 @@ import com.google.android.libraries.places.api.model.AutocompleteSessionToken
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest
 import com.google.android.libraries.places.api.net.PlacesClient
+import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import okhttp3.*
 import org.json.JSONObject
+import org.json.JSONArray
 import java.io.IOException
 import android.widget.EditText
 
@@ -48,6 +51,17 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     private val DIRECTIONS_API_KEY by lazy { getString(R.string.google_maps_key) }
 
     private lateinit var predictionsAdapter: PredictionsAdapter
+    private var currentPlacesAdapter: SimplePlaceAdapter? = null
+    
+    // Recommendation system constants
+    private val NEARBY_SEARCH_RADIUS = 5000 // meters
+    private val MAX_PLACES_PER_CATEGORY = 8
+    private val VICINITY_MAX_LENGTH = 40
+    private val VICINITY_TRUNCATE_LENGTH = 37
+    
+    // Cache for UI elements
+    private var categoryDropdownRef: MaterialAutoCompleteTextView? = null
+    private var recommendedRecyclerViewRef: RecyclerView? = null
 
     data class PlaceItem(
         val name: String,
@@ -146,6 +160,9 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
             override fun afterTextChanged(s: Editable?) = Unit
         })
+
+        // ─────────── Recommendation System Setup ───────────
+        setupRecommendationSystem(view)
     }
 
     // 8 fake items per category with realistic subtitles
@@ -205,6 +222,186 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
             PlaceItem(name = title, subtitle = subtitle)
         }
+    }
+
+    private fun setupRecommendationSystem(view: View) {
+        val categoryDropdown = view.findViewById<MaterialAutoCompleteTextView>(R.id.categoryDropdown)
+        val recommendedRecyclerView = view.findViewById<RecyclerView>(R.id.recommendedRecyclerView)
+        
+        // Cache view references for later use
+        categoryDropdownRef = categoryDropdown
+        recommendedRecyclerViewRef = recommendedRecyclerView
+
+        // Set up RecyclerView
+        recommendedRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+
+        // Define categories
+        val categories = listOf(
+            "Restaurant",
+            "Gas Station",
+            "Grocery Store",
+            "Coffee Shop",
+            "Pharmacy",
+            "Superstore"
+        )
+
+        // Set up category dropdown
+        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, categories)
+        categoryDropdown.setAdapter(adapter)
+
+        // Set default selection to "Restaurant"
+        categoryDropdown.setText("Restaurant", false)
+        
+        // Fetch initial data for Restaurant
+        fetchNearbyPlaces("Restaurant", recommendedRecyclerView)
+
+        // Handle category selection
+        categoryDropdown.setOnItemClickListener { _, _, position, _ ->
+            val selectedCategory = categories[position]
+            fetchNearbyPlaces(selectedCategory, recommendedRecyclerView)
+        }
+    }
+
+    private fun fetchNearbyPlaces(category: String, recyclerView: RecyclerView) {
+        val location = lastLocation
+        if (location == null) {
+            Log.w("HomeFragment", "Location not available yet. Using fake data for $category")
+            // Use fake data as fallback
+            val fakeItems = fakePlaceItems(category)
+            currentPlacesAdapter = SimplePlaceAdapter(fakeItems)
+            recyclerView.adapter = currentPlacesAdapter
+            return
+        }
+
+        // Map category to Google Places API type
+        val placeType = when (category) {
+            "Restaurant" -> "restaurant"
+            "Gas Station" -> "gas_station"
+            "Grocery Store" -> "grocery_or_supermarket"
+            "Coffee Shop" -> "cafe"
+            "Pharmacy" -> "pharmacy"
+            "Superstore" -> "supermarket"
+            else -> "restaurant"
+        }
+
+        val url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json" +
+                "?location=${location.latitude},${location.longitude}" +
+                "&radius=$NEARBY_SEARCH_RADIUS" +
+                "&type=$placeType" +
+                "&key=$DIRECTIONS_API_KEY"
+
+        Log.d("HomeFragment", "Fetching nearby places for $category")
+
+        val client = OkHttpClient()
+        val request = Request.Builder().url(url).build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                requireActivity().runOnUiThread {
+                    Log.e("HomeFragment", "Failed to fetch nearby places: ${e.message}")
+                    Toast.makeText(requireContext(), "Failed to fetch places. Using placeholder data.", Toast.LENGTH_SHORT).show()
+                    // Fallback to fake data
+                    val fakeItems = fakePlaceItems(category)
+                    currentPlacesAdapter = SimplePlaceAdapter(fakeItems)
+                    recyclerView.adapter = currentPlacesAdapter
+                }
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                val body = response.body?.string() ?: ""
+                
+                try {
+                    val json = JSONObject(body)
+                    val results = json.optJSONArray("results")
+                    
+                    if (results == null || results.length() == 0) {
+                        requireActivity().runOnUiThread {
+                            Log.w("HomeFragment", "No places found for $category. Using fake data.")
+                            val fakeItems = fakePlaceItems(category)
+                            currentPlacesAdapter = SimplePlaceAdapter(fakeItems)
+                            recyclerView.adapter = currentPlacesAdapter
+                        }
+                        return
+                    }
+
+                    val places = parseNearbyPlaces(results, category)
+                    
+                    requireActivity().runOnUiThread {
+                        Log.d("HomeFragment", "Found ${places.size} places for $category")
+                        currentPlacesAdapter = SimplePlaceAdapter(places)
+                        recyclerView.adapter = currentPlacesAdapter
+                    }
+                } catch (e: Exception) {
+                    requireActivity().runOnUiThread {
+                        Log.e("HomeFragment", "Error parsing places: ${e.message}")
+                        val fakeItems = fakePlaceItems(category)
+                        currentPlacesAdapter = SimplePlaceAdapter(fakeItems)
+                        recyclerView.adapter = currentPlacesAdapter
+                    }
+                }
+            }
+        })
+    }
+
+    private fun parseNearbyPlaces(results: JSONArray, category: String): List<PlaceItem> {
+        val places = mutableListOf<PlaceItem>()
+        
+        for (i in 0 until minOf(results.length(), MAX_PLACES_PER_CATEGORY)) {
+            try {
+                val place = results.getJSONObject(i)
+                val name = place.optString("name", "Unknown Place")
+                val vicinity = place.optString("vicinity", "")
+                
+                // Get additional details
+                val rating = place.optDouble("rating", 0.0)
+                val isOpen = place.optJSONObject("opening_hours")?.optBoolean("open_now", false) ?: false
+                val priceLevel = place.optInt("price_level", 0)
+                
+                // Build subtitle based on category
+                val subtitle = buildPlaceSubtitle(category, rating, isOpen, priceLevel, vicinity)
+                
+                places.add(PlaceItem(name = name, subtitle = subtitle))
+            } catch (e: Exception) {
+                Log.e("HomeFragment", "Error parsing place at index $i: ${e.message}")
+            }
+        }
+        
+        return places
+    }
+
+    private fun buildPlaceSubtitle(
+        category: String,
+        rating: Double,
+        isOpen: Boolean,
+        priceLevel: Int,
+        vicinity: String
+    ): String {
+        val parts = mutableListOf<String>()
+        
+        // Add rating if available
+        if (rating > 0) {
+            parts.add("★${String.format("%.1f", rating)}")
+        }
+        
+        // Add price level for restaurants
+        if (category == "Restaurant" && priceLevel > 0) {
+            parts.add("$".repeat(priceLevel))
+        }
+        
+        // Add open status
+        parts.add(if (isOpen) "Open now" else "Closed")
+        
+        // Add vicinity/address (truncate if too long)
+        if (vicinity.isNotEmpty()) {
+            val truncatedVicinity = if (vicinity.length > VICINITY_MAX_LENGTH) {
+                vicinity.substring(0, VICINITY_TRUNCATE_LENGTH) + "..."
+            } else {
+                vicinity
+            }
+            parts.add(truncatedVicinity)
+        }
+        
+        return parts.joinToString(" • ")
     }
 
     private class SimplePlaceAdapter(
@@ -281,8 +478,18 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         locationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult) {
                 locationResult.lastLocation?.let { location ->
+                    val wasNull = lastLocation == null
                     lastLocation = LatLng(location.latitude, location.longitude)
                     Log.d("HomeFragment", "Real-time location updated: ${location.latitude}, ${location.longitude}")
+                    
+                    // If this is the first location update, refresh recommendations with real data
+                    if (wasNull && categoryDropdownRef != null && recommendedRecyclerViewRef != null) {
+                        val currentCategory = categoryDropdownRef?.text.toString()
+                        if (currentCategory.isNotEmpty()) {
+                            fetchNearbyPlaces(currentCategory, recommendedRecyclerViewRef!!)
+                        }
+                    }
+                    
                     onLocationUpdated()
                 }
             }
