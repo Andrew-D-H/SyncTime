@@ -105,14 +105,14 @@ class MainActivity : AppCompatActivity() {
      */
     fun setlanguage(view: View) {
         // set app locale given the user's selected locale
-        val lang = AppCompatDelegate.getApplicationLocales()
-        if (lang.toLanguageTags().toString() == "en") {
+        val currentLocales = AppCompatDelegate.getApplicationLocales()
+        if (currentLocales.toLanguageTags().toString() == "en") {
             AppCompatDelegate.setApplicationLocales(
                 LocaleListCompat.forLanguageTags(
                     "es" // ISO for Spanish
                 )
             )
-        } else if (lang.toLanguageTags().toString() == "es") {
+        } else if (currentLocales.toLanguageTags().toString() == "es") {
             AppCompatDelegate.setApplicationLocales(
                 LocaleListCompat.forLanguageTags(
                     "en" // ISO for English
