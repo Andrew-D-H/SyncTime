@@ -1,24 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    android:padding="16dp"
-    android:background="@android:color/white"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/tvChatFriendName"
+    <!-- Chat Header -->
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/chatToolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/purple_500"
+        android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar"
+        app:navigationIcon="@drawable/ic_arrow_back"
+        app:title="Chat"
+        app:titleTextColor="@android:color/white"
+        app:titleCentered="false"
+        app:menu="@menu/chat_toolbar_menu" />
+
+    <!-- Messages Recycler -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerMessages"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:padding="8dp"
+        android:clipToPadding="false" />
+
+    <!-- Message Input Area -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Chat"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:paddingBottom="12dp"/>
+        android:orientation="horizontal"
+        android:padding="8dp"
+        android:gravity="center_vertical"
+        android:background="@android:color/white"
+        android:elevation="4dp">
 
-    <!-- Placeholder — messages list will go here -->
-    <TextView
-        android:id="@+id/tvPlaceholder"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Chat UI will go here" />
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/inputMessage"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginEnd="8dp"
+            android:hint="Type a message"
+            android:background="@drawable/input_background"
+            android:padding="12dp"
+            android:maxLines="4" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/btnSend"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_send"
+            android:contentDescription="Send message"
+            app:fabSize="normal"
+            app:backgroundTint="@color/purple_500" />
+
+    </LinearLayout>
+
 </LinearLayout>

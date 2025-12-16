@@ -25,6 +25,16 @@ class MainActivity : AppCompatActivity() {
         Log.d("MainActivity", "Launching in ${if (isDarkTheme) "Dark Mode" else "Light Mode"}")
 
         // Now call super.onCreate()
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.os.LocaleListCompat
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.bottomnavigation.BottomNavigationView
+
+class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         // Initialize views and activity logic
@@ -32,6 +42,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.main_menu)
 
         Log.d("MainActivity", "Theme loaded: Dark mode is $isDarkTheme")
+        val bottomNav: BottomNavigationView = findViewById(R.id.bottom_navigation)
 
         // Set up bottom navigation
         setupBottomNavigation(findViewById(R.id.bottom_navigation))
@@ -63,6 +74,19 @@ class MainActivity : AppCompatActivity() {
     fun isDarkModeEnabled(): Boolean {
         return isDarkTheme
     }
+                R.id.nav_add -> {
+                    // Show the Bottom Sheet instead of a Fragment
+                    val addBottomSheet = AddBottomSheet()
+                    addBottomSheet.show(supportFragmentManager, "AddBottomSheet")
+                    false // prevents highlighting the add icon (since it's not a real tab)
+                }
+
+                R.id.nav_notifications -> {
+                    supportFragmentManager.beginTransaction()
+                        .replace(R.id.fragment_container, NotificationsFragment())
+                        .commit()
+                    true
+                }
 
     /**
      * Set up BottomNavigationView to switch fragments.
@@ -94,6 +118,25 @@ class MainActivity : AppCompatActivity() {
             } else {
                 false
             }
+        }
+    }
+    fun setlanguage(view: View) {
+        // set app locale given the user's selected locale
+        var lang = AppCompatDelegate.getApplicationLocales()
+        if (lang.toLanguageTags().toString() == "en") {
+
+            AppCompatDelegate.setApplicationLocales(
+                LocaleListCompat.forLanguageTags(
+                    "es"//ISO for Spanish
+                )
+            )
+        }
+        else if (lang.toLanguageTags().toString() == "es") {
+            AppCompatDelegate.setApplicationLocales(
+                LocaleListCompat.forLanguageTags(
+                    "en"//ISO for English
+                )
+            )
         }
     }
 }
