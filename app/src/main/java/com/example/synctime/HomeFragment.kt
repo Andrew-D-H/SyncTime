@@ -12,7 +12,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
@@ -35,12 +34,6 @@ import com.google.android.libraries.places.api.net.PlacesClient
 import okhttp3.*
 import org.json.JSONObject
 import java.io.IOException
-import okhttp3.*
-import org.json.JSONObject
-import java.io.IOException
-import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-import android.app.AlertDialog
-import android.widget.Button
 import android.widget.EditText
 
 class HomeFragment : Fragment(R.layout.fragment_home) {
@@ -81,7 +74,6 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             }
         )
     }
-    private val DIRECTIONS_API_KEY = "@string/google_maps_key"
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -109,7 +101,6 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             Toast.makeText(requireContext(), "No destination passed from trip selection.", Toast.LENGTH_SHORT).show()
         }
 
-        // Google Maps setup
         mapView = view.findViewById(R.id.mapView)
         mapView.onCreate(savedInstanceState)
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
@@ -393,83 +384,6 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
         override fun onBindViewHolder(holder: PredictionViewHolder, position: Int) {
             val prediction = predictions[position]
-    override fun onLowMemory() {
-        mapView.onLowMemory()
-        super.onLowMemory()
-        // ─────────── RecyclerView Setup ───────────
-        val recyclerView = view.findViewById<RecyclerView>(R.id.placesRecyclerView)
-        recyclerView.layoutManager = LinearLayoutManager(requireContext())
-
-        val fakePlaces = listOf(
-            "7747 State Street" to "Green Cove Springs, FL 32043",
-            "123 Main Street" to "Orlando, FL 32801",
-            "456 Oak Avenue" to "Jacksonville, FL 32202",
-            "789 Pine Lane" to "Miami, FL 33101",
-            "101 Maple Drive" to "Tampa, FL 33602"
-        )
-
-        recyclerView.adapter = PlacesAdapter(fakePlaces)
-
-        // ─────────── Floating Button Setup ───────────
-        val btnNewTrip = view.findViewById<ExtendedFloatingActionButton>(R.id.btn_new_trip)
-        val btnChat = view.findViewById<ExtendedFloatingActionButton>(R.id.btn_chat)
-
-        // ─────────── New Trip Button Functionality ───────────
-        btnNewTrip.setOnClickListener {
-            it.animate()
-                .scaleX(0.95f)
-                .scaleY(0.95f)
-                .setDuration(100)
-                .withEndAction {
-                    it.animate().scaleX(1f).scaleY(1f).duration = 100
-                }
-
-            // Inflate custom dialog layout
-            val dialogView = LayoutInflater.from(requireContext())
-                .inflate(R.layout.dialog_new_trip, null)
-            val tripInput = dialogView.findViewById<EditText>(R.id.trip_name_input)
-            val createButton = dialogView.findViewById<Button>(R.id.btn_create_trip)
-
-            val dialog = AlertDialog.Builder(requireContext())
-                .setView(dialogView)
-                .create()
-
-            createButton.setOnClickListener {
-                val tripName = tripInput.text.toString().trim()
-                if (tripName.isEmpty()) {
-                    Toast.makeText(requireContext(), "Please enter a trip name", Toast.LENGTH_SHORT).show()
-                } else {
-                    Toast.makeText(requireContext(), "Trip '$tripName' created!", Toast.LENGTH_SHORT).show()
-                    dialog.dismiss()
-                }
-            }
-
-            dialog.show()
-        }
-
-        // ─────────── Chat Button Functionality ───────────
-        btnChat.setOnClickListener {
-            it.animate()
-                .scaleX(0.95f)
-                .scaleY(0.95f)
-                .setDuration(100)
-                .withEndAction {
-                    it.animate().scaleX(1f).scaleY(1f).duration = 100
-                }
-
-            // 🔹 Navigate to ChatListFragment
-            parentFragmentManager.beginTransaction()
-                .setCustomAnimations(
-                    android.R.anim.fade_in,
-                    android.R.anim.fade_out,
-                    android.R.anim.fade_in,
-                    android.R.anim.fade_out
-                )
-                .replace(R.id.fragment_container, ChatListFragment())
-                .addToBackStack(null)
-                .commit()
-        }
-    }
 
             // Bind primary and secondary text to TextViews
             val primaryText = prediction.getPrimaryText(null).toString()
